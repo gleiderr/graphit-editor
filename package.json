@@ -3,14 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "firebase": "^5.9.3",
+    "graphit": "file:../graphit",
+    "graphit-firebase": "file:../graphit-firebase",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "2.1.8"
   },
+  "devDependencies": {
+    "cucumber": "^5.1.0",
+    "puppeteer": "^1.13.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "cucumber-js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
