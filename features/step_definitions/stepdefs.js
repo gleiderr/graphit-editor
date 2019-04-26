@@ -1,17 +1,21 @@
 const assert = require('assert');
-const { Given, When, Then } = require('cucumber');
+const { Given, When, Then, BeforeAll } = require('cucumber');
 const puppeteer = require('puppeteer');
 
-Given('que o site do graphit está acessível.', {timeout: 30 * 1000}, async function () {
-  /*const browser = await puppeteer.launch({
+let acessível;
+BeforeAll({timeout: 60 * 1000}, async function () {
+  const browser = await puppeteer.launch({
     headless: false,
     slowMo: 100,
   });
   const page = await browser.newPage();
-  const response = await page.goto('localhost:3000');
+  const response = await page.goto('http://example.com/');
 
-  // Write code here that turns the phrase above into concrete actions
-  this.acessível = response.ok();*/
+  acessível = response.ok();
+})
+
+Given('que o site do graphit está acessível.', {timeout: 30 * 1000}, async function () {
+  assert.ok(acessível, `Site não acessível ${acessível}`);
 });
 
 Given('que não há nenhuma informação gravada', function () {
