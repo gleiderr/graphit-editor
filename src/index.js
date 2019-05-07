@@ -19,7 +19,7 @@ firebase.initializeApp(config);
 
 function Root() {
     console.log(Graphit);
-    return (<div>Teste</div>);
+    return (<div id='_0'>Bíblia Sagrada</div>);
 }
 
 ReactDOM.render(<Root />, document.getElementById('root'));

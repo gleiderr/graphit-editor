@@ -1,44 +1,69 @@
 const assert = require('assert');
-const { Given, When, Then, BeforeAll } = require('cucumber');
+const { Given, When, Then, BeforeAll, AfterAll } = require('cucumber');
+
 const puppeteer = require('puppeteer');
+const firebase = require('firebase');
+const { Graphit } = require('graphit');
+const { Graphit_Firebase } = require('graphit-firebase');
 
 let acessível;
-BeforeAll({timeout: 60 * 1000}, async function () {
-  const browser = await puppeteer.launch({
-    headless: false,
-    slowMo: 100,
-  });
-  const page = await browser.newPage();
-  const response = await page.goto('http://example.com/');
+let browser;
+let g;
+const test_ref = '__graphit-test__';
 
-  acessível = response.ok();
+BeforeAll({timeout: 60 * 1000}, async function () {
+  //Acesso à página
+  browser = await puppeteer.launch({
+    headless: false,
+    slowMo: 0,
+  });
+  
+  //Acesso ao firebase
+  const config = {
+    apiKey: "AIzaSyDw44kycEYrMUc3RJ_WQ1Oe5ztZqx_S_is",
+    authDomain: "graphit-js.firebaseapp.com",
+    databaseURL: "https://graphit-js.firebaseio.com",
+    projectId: "graphit-js",
+    storageBucket: "graphit-js.appspot.com",
+    messagingSenderId: "694181552879"
+  };
+  firebase.initializeApp(config);
+
+  //Configurando conexão da base de dados com graphit
+  const db = new Graphit_Firebase(firebase.database(), test_ref);
+  g = new Graphit(db);
 })
 
-Given('que o site do graphit está acessível.', {timeout: 30 * 1000}, async function () {
-  assert.ok(acessível, `Site não acessível ${acessível}`);
+AfterAll(async function() {
+  await browser.close();
+  console.log('Fim!');
+  
 });
 
-Given('que não há nenhuma informação gravada', function () {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+Given('que não há informação gravada na base de dados', function () {
+  firebase.database().ref(test_ref).remove();
 });
 
-When('eu clicar sobre o primeiro campo', function () {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+When('acessar página {string}', {timeout: 1000 * 30}, async function (url) {
+  this.page = await browser.newPage();
+  await this.page.goto(url);
 });
 
-When('digitar {string}', function (string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+When('clicar sobre o primeiro campo', async function () {
+  this.primeiroCampo = await this.page.$('#_0');
+  await this.primeiroCampo.click();
 });
 
-Then('{string} deve ser efetivamente gravado na base de dados', function (string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+When('digitar {string}', async function (string) {
+  await this.primeiroCampo.type(string);
 });
 
-Then('aresta para esse texto deve conter etiqueta {string}', function (string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+When('fechar a página', async function () {
+  await this.page.close();
+});
+
+Then('o conteúdo do primeiro campo deve ser {string}', async function (string) {
+  this.primeiroCampo = await this.page.$('#_0');
+  const innerText = await this.page.$eval('#_0', el => el.innerText);
+  assert.equal(innerText, string);
 });
