@@ -15,7 +15,7 @@ BeforeAll({timeout: 60 * 1000}, async function () {
   //Acesso à página
   browser = await puppeteer.launch({
     headless: false,
-    slowMo: 0,
+    slowMo: 50,
   });
   
   //Acesso ao firebase
@@ -37,7 +37,6 @@ BeforeAll({timeout: 60 * 1000}, async function () {
 AfterAll(async function() {
   await browser.close();
   console.log('Fim!');
-  
 });
 
 Given('que não há informação gravada na base de dados', function () {
@@ -49,8 +48,12 @@ When('acessar página {string}', {timeout: 1000 * 30}, async function (url) {
   await this.page.goto(url);
 });
 
+When('aguardar {int} segundo(s)', {timeout: 1000 * 30}, async function (n) {
+  await this.page.waitFor(1000 * n);
+});
+
 When('clicar sobre o primeiro campo', async function () {
-  this.primeiroCampo = await this.page.$('#_0');
+  this.primeiroCampo = await this.page.$('div');
   await this.primeiroCampo.click();
 });
 
@@ -63,7 +66,7 @@ When('fechar a página', async function () {
 });
 
 Then('o conteúdo do primeiro campo deve ser {string}', async function (string) {
-  this.primeiroCampo = await this.page.$('#_0');
-  const innerText = await this.page.$eval('#_0', el => el.innerText);
+  this.primeiroCampo = await this.page.$('div');
+  const innerText = await this.page.$eval('div', el => el.innerText);
   assert.equal(innerText, string);
 });
