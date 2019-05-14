@@ -15,7 +15,7 @@ BeforeAll({timeout: 60 * 1000}, async function () {
   //Acesso à página
   browser = await puppeteer.launch({
     headless: false,
-    slowMo: 50,
+    slowMo: 25,
   });
   
   //Acesso ao firebase
@@ -65,8 +65,21 @@ When('fechar a página', async function () {
   await this.page.close();
 });
 
-Then('o conteúdo do primeiro campo deve ser {string}', async function (string) {
-  this.primeiroCampo = await this.page.$('div');
-  const innerText = await this.page.$eval('div', el => el.innerText);
+Then('o conteúdo do {word} campo deve ser {string}', async function (campo, string) {
+  let selector;
+  switch(campo) {
+    case 'primeiro':
+      selector = 'div';
+      break;
+    case 'segundo':
+      selector = 'asdfg';
+      break;
+    default:
+  }
+  const innerText = await this.page.$eval(selector, el => el.innerText);  
   assert.equal(innerText, string);
+});
+
+When('teclar "Enter"', async function() {
+  await this.page.keyboard.press('Enter');
 });
