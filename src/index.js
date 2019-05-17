@@ -6,6 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase';
 import { Graphit } from 'graphit';
 const { Graphit_Firebase } = require('graphit-firebase');
+const { Graphit_JSON } = require('graphit-json');
 
 const config = {
     apiKey: "AIzaSyDw44kycEYrMUc3RJ_WQ1Oe5ztZqx_S_is",
