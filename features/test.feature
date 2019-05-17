@@ -16,7 +16,7 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E fechar a página
         E acessar página 'localhost:3000'
         E aguardar 1 segundo
-        Então o conteúdo do primeiro campo deve ser "<Versão da Bíblia>"
+        Então deve existir um campo com o texto "<Versão da Bíblia>"
 
         Exemplos:
         | Versão da Bíblia |
@@ -33,8 +33,8 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E teclar "Enter"
         E digitar "Evangelho de João"
         E aguardar 1 segundo
-        Então o conteúdo do primeiro campo deve ser "Bíblia Sagrada"
-        E o conteúdo do segundo campo deve ser "Evangelho de João"
+        Então deve existir um campo com o texto "Bíblia Sagrada"
+        E deve existir um campo com o texto "Evangelho de João"
 
     #Cenário: Inclusão de texto 'Capítulo 1' contido em 'Evangelho de João'
 

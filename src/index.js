@@ -33,14 +33,30 @@ class Node extends React.Component {
         });
     }
 
-    setData(target) {
-        const node = {id: this.props.id, data: target.innerText} 
+    setData(data) {
+        const node = {id: this.props.id, data};
         g.node(node);
-        console.log(node);
+    }
+
+    inputHandle(evt) {
+        this.setData(evt.target.innerText);
+    }
+
+    async keyDownHandle(evt) {
+        switch(evt.key) {
+            case 'Enter':
+                evt.preventDefault();
+                let node = await g.node({});
+                console.log(node);
+                break;
+            default:
+        }
     }
 
     render() {
-        return (<div contentEditable onInput={evt => this.setData(evt.target)} >{this.state.data}</div>);
+        return (<div className="Graphit-Node" contentEditable 
+                     onInput={evt => this.inputHandle(evt)}
+                     onKeyDown={evt => this.keyDownHandle(evt)} >{this.state.data}</div>);
     }
 }
 

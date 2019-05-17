@@ -65,18 +65,8 @@ When('fechar a página', async function () {
   await this.page.close();
 });
 
-Then('o conteúdo do {word} campo deve ser {string}', async function (campo, string) {
-  let selector;
-  switch(campo) {
-    case 'primeiro':
-      selector = 'div';
-      break;
-    case 'segundo':
-      selector = 'asdfg';
-      break;
-    default:
-  }
-  const innerText = await this.page.$eval(selector, el => el.innerText);  
+Then('deve existir um campo com o texto {string}', async function (string) {
+  const innerText = await this.page.$eval('div', el => el.innerText);  
   assert.equal(innerText, string);
 });
 
