@@ -27,10 +27,20 @@ class Node extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {data: undefined};
+        this.state = {
+            data: undefined,
+            list: []
+        };
 
         g.node({id: props.id}).then(gnode => {
-            this.setState({ data: gnode.data});
+            g.adj({from_id: props.id}).then(glist => {
+                this.setState({ 
+                    data: gnode.data,
+                    list: glist.list
+                });
+            })
+
+
         });
     }
 
@@ -48,26 +58,36 @@ class Node extends React.Component {
             case 'Enter':
                 evt.preventDefault();
                 let node = await g.node({});
-                console.log(node);
+
+                let adj = await g.adj({ from_id: this.props.id }); //Recupera lista
+                
+                adj.list.push(node.id); //Insere elemento
+
+                adj = await g.adj(adj) //atribui
+
+                console.log(node, adj);
                 break;
             default:
         }
     }
 
     render() {
-        return (<div className="Graphit-Node" contentEditable 
+        const nodes = this.state.list.map((id) => (<Node id={id} />))
+
+        return (
+            <div>
+            <div className="Graphit-Node" contentEditable 
                      onInput={evt => this.inputHandle(evt)}
-                     onKeyDown={evt => this.keyDownHandle(evt)} >{this.state.data}</div>);
+                     onKeyDown={evt => this.keyDownHandle(evt)} >
+                     {this.state.data}
+            </div>
+            {nodes}
+            </div>
+                     );
     }
 }
 
-class Root extends React.Component {
-    render() {
-        return (<Node id='0' />);
-    }
-}
-
-ReactDOM.render(<Root />, document.getElementById('root'));
+ReactDOM.render(<Node id='0' />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
