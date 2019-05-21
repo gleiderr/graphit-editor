@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+//import App from './App';
 import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase';
 import { Graphit } from 'graphit';
 const { Graphit_Firebase } = require('graphit-firebase');
-const { Graphit_JSON } = require('graphit-json');
+//const { Graphit_JSON } = require('graphit-json');
 
 const config = {
     apiKey: "AIzaSyDw44kycEYrMUc3RJ_WQ1Oe5ztZqx_S_is",
@@ -65,18 +65,28 @@ class Node extends React.Component {
 
                 adj = await g.adj(adj) //atribui
 
+                this.state.list = adj.list;
+                this.setState(this.state);
+
                 console.log(node, adj);
                 break;
             default:
         }
     }
 
+    //componentDidMount() {
+        //ReactDOM.findDOMNode(this).focus();
+        //console.log(ReactDOM.findDOMNode(this));
+    //}
+
     render() {
-        const nodes = this.state.list.map((id) => (<Node id={id} />))
+        const nodes = this.state.list.map((id, i) => (<Node key={i} id={id} />))
 
         return (
             <div>
             <div className="Graphit-Node" contentEditable 
+                 style={{'border-style': 'solid',
+                         'border-width': '1px'}}
                      onInput={evt => this.inputHandle(evt)}
                      onKeyDown={evt => this.keyDownHandle(evt)} >
                      {this.state.data}
