@@ -59,11 +59,11 @@ class Node extends React.Component {
                 evt.preventDefault();
                 let node = await g.node({});
 
-                let adj = await g.adj({ from_id: this.props.id }); //Recupera lista
+                let adj = await g.adj({ from_id: this.props.id }); //Recupera lista da base de dados
                 
-                adj.list.push(node.id); //Insere elemento
+                adj.list = [node.id, ...adj.list]; //Insere elemento na primeira posição
 
-                adj = await g.adj(adj) //atribui
+                adj = await g.adj(adj) //Atribui na base de dados
 
                 this.state.list = adj.list;
                 this.setState(this.state);
@@ -80,18 +80,18 @@ class Node extends React.Component {
     //}
 
     render() {
-        const nodes = this.state.list.map((id, i) => (<Node key={i} id={id} />))
+        const nodes = this.state.list.map((id, i) => (<Node key={id} id={id} />))
 
         return (
             <div>
-            <div className="Graphit-Node" contentEditable 
-                 style={{'border-style': 'solid',
-                         'border-width': '1px'}}
-                     onInput={evt => this.inputHandle(evt)}
-                     onKeyDown={evt => this.keyDownHandle(evt)} >
-                     {this.state.data}
-            </div>
-            {nodes}
+                <div className="Graphit-Node" contentEditable 
+                    style={{'border-style': 'solid',
+                            'border-width': '1px'}}
+                        onInput={evt => this.inputHandle(evt)}
+                        onKeyDown={evt => this.keyDownHandle(evt)} >
+                        {this.state.data}
+                </div>
+                {nodes}
             </div>
                      );
     }
