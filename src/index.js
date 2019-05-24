@@ -66,6 +66,7 @@ class Node extends React.Component {
                 adj = await g.adj(adj) //Atribui na base de dados
 
                 this.state.list = adj.list;
+                this.state.toActive = true;
                 this.setState(this.state);
 
                 console.log(node, adj);
@@ -74,21 +75,35 @@ class Node extends React.Component {
         }
     }
 
-    //componentDidMount() {
-        //ReactDOM.findDOMNode(this).focus();
-        //console.log(ReactDOM.findDOMNode(this));
-    //}
+    //https://stackoverflow.com/questions/28889826/set-focus-on-input-after-render
+    //https://reactjs.org/docs/refs-and-the-dom.html
+    componentDidUpdate() {
+        ReactDOM.findDOMNode(this).focus();
+        console.log('atualizou: ', ReactDOM.findDOMNode(this), this.props.id, this.state);
+    }
+
+    componentDidMount() {
+        ReactDOM.findDOMNode(this).focus();
+        console.log('moutou: ', this.props.id);
+    }
 
     render() {
-        const nodes = this.state.list.map((id, i) => (<Node key={id} id={id} />))
+        const nodes = this.state.list.map((id, i) => { 
+            return (<Node key={id} id={id} deep={this.props.deep + 1} />)
+        });
+
+        const style = {
+            //'border-style': 'solid',
+            'border-width': '1px',
+            'margin-left': ((10 * this.props.deep) + 'px'),
+        };
 
         return (
             <div>
                 <div className="Graphit-Node" contentEditable 
-                    style={{'border-style': 'solid',
-                            'border-width': '1px'}}
-                        onInput={evt => this.inputHandle(evt)}
-                        onKeyDown={evt => this.keyDownHandle(evt)} >
+                     style={style}
+                     onInput={evt => this.inputHandle(evt)}
+                     onKeyDown={evt => this.keyDownHandle(evt)} >
                         {this.state.data}
                 </div>
                 {nodes}
@@ -97,7 +112,7 @@ class Node extends React.Component {
     }
 }
 
-ReactDOM.render(<Node id='0' />, document.getElementById('root'));
+ReactDOM.render(<Node id='0' deep={0} />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
