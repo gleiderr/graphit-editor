@@ -3,12 +3,8 @@ const { Given, When, Then, BeforeAll, AfterAll } = require('cucumber');
 
 const puppeteer = require('puppeteer');
 const firebase = require('firebase');
-const { Graphit } = require('graphit');
-const { Graphit_Firebase } = require('graphit-firebase');
 
-let acessível;
 let browser;
-let g;
 const test_ref = '__graphit-test__';
 
 BeforeAll({timeout: 60 * 1000}, async function () {
@@ -28,10 +24,6 @@ BeforeAll({timeout: 60 * 1000}, async function () {
     messagingSenderId: "694181552879"
   };
   firebase.initializeApp(config);
-
-  //Configurando conexão da base de dados com graphit
-  const db = new Graphit_Firebase(firebase.database(), test_ref);
-  g = new Graphit(db);
 })
 
 AfterAll(async function() {
@@ -53,12 +45,13 @@ When('aguardar {int} segundo(s)', {timeout: 1000 * 30}, async function (n) {
 });
 
 When('clicar sobre o primeiro campo', async function () {
-  this.primeiroCampo = await this.page.$('div');
+  this.primeiroCampo = await this.page.$('.Graphit-Node');
   await this.primeiroCampo.click();
 });
 
 When('digitar {string}', async function (string) {
-  await this.primeiroCampo.type(string);
+  const focusedField = await this.page.$(':focus');
+  await focusedField.type(string, {delay: 30});
 });
 
 When('fechar a página', async function () {
@@ -66,8 +59,8 @@ When('fechar a página', async function () {
 });
 
 Then('deve existir um campo com o texto {string}', async function (string) {
-  const innerText = await this.page.$eval('div', el => el.innerText);  
-  assert.equal(innerText, string);
+  const innerTexts = await this.page.$$eval('.Graphit-Node', ns => ns.map(n => n.innerText));
+  assert.ok(innerTexts.some(innerText => innerText === string), `Nodos existentes: ${innerTexts}`);
 });
 
 When('teclar "Enter"', async function() {
