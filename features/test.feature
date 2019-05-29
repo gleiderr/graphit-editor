@@ -11,11 +11,12 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         Quando acessar página 'localhost:3000'
         E aguardar 1 segundo
         E clicar sobre o primeiro campo
+        E aguardar 1 segundo
         E digitar "<Versão da Bíblia>"
         E aguardar 1 segundo
         E fechar a página
         E acessar página 'localhost:3000'
-        E aguardar 1 segundo
+        E aguardar 2 segundos
         Então deve existir um campo com o texto "<Versão da Bíblia>"
 
         Exemplos:
@@ -29,14 +30,16 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E aguardar 1 segundo
         E clicar sobre o primeiro campo
         E digitar "Bíblia Sagrada"
-        E aguardar 1 segundo
+        E aguardar 2 segundos
         E teclar "Enter"
-        E digitar "Evangelho de João"
         E aguardar 1 segundo
+        E digitar "Evangelho de João"
+        E aguardar 2 segundos
         Então deve existir um campo com o texto "Bíblia Sagrada"
         E deve existir um campo com o texto "Evangelho de João"
 
+    #Cenário: Exibição de nodo liberado para edição (verde, amarelo, vermelho)
+    #Cenário: 
     #Cenário: Inclusão de texto 'Capítulo 1' contido em 'Evangelho de João'
 
-    #Cenário: Inclusão de texto 'No princípio era o Verbo, o Verbo estava com Deus...' contido no 'Evangelho de João'
-    #    Então aresta para esse texto deve conter etiqueta "Versículo 1"
+    #Cenário: Inclusão de texto 'No princípio era o Verbo, o Verbo estava com Deus...' contido no 'Evangelho de João' e aresta para esse texto contendo etiqueta "Versículo 1"
