@@ -29,8 +29,11 @@ class Node extends React.Component {
 
         this.state = {
             data: undefined,
-            list: []
+            list: [],
+            focusPending: props.focusPending,
         };
+
+        this.myInput = React.createRef();
 
         g.node({id: props.id}).then(gnode => {
             g.adj({from_id: props.id}).then(glist => {
@@ -39,8 +42,6 @@ class Node extends React.Component {
                     list: glist.list
                 });
             })
-
-
         });
     }
 
@@ -66,49 +67,44 @@ class Node extends React.Component {
                 adj = await g.adj(adj) //Atribui na base de dados
 
                 this.state.list = adj.list;
-                this.state.toActive = true;
+                this.state.focusChild = 0; //Provoca foco em nodo recém criado
                 this.setState(this.state);
-
-                console.log(node, adj);
                 break;
             default:
         }
     }
 
-    //https://stackoverflow.com/questions/28889826/set-focus-on-input-after-render
-    //https://reactjs.org/docs/refs-and-the-dom.html
-    componentDidUpdate() {
-        ReactDOM.findDOMNode(this).focus();
-        console.log('atualizou: ', ReactDOM.findDOMNode(this), this.props.id, this.state);
-    }
-
     componentDidMount() {
-        ReactDOM.findDOMNode(this).focus();
-        console.log('moutou: ', this.props.id);
+        if (this.state.focusPending) {
+            this.myInput.current.focus();
+        }
     }
 
     render() {
-        const nodes = this.state.list.map((id, i) => { 
-            return (<Node key={id} id={id} deep={this.props.deep + 1} />)
+        const nodes = this.state.list.map((id, i) => {
+            return (<Node key={id} id={id} 
+                          focusPending={this.state.focusChild === i} 
+                          deep={this.props.deep + 1} />);
         });
 
         const style = {
-            //'border-style': 'solid',
-            'border-width': '1px',
-            'margin-left': ((10 * this.props.deep) + 'px'),
+            'borderStyle': 'solid',
+            'borderWidth': '1px',
+            'marginLeft': ((10 * this.props.deep) + 'px'),
         };
 
         return (
             <div>
-                <div className="Graphit-Node" contentEditable 
+                <div className="Graphit-Node" 
+                     contentEditable suppressContentEditableWarning={true}
                      style={style}
                      onInput={evt => this.inputHandle(evt)}
-                     onKeyDown={evt => this.keyDownHandle(evt)} >
+                     onKeyDown={evt => this.keyDownHandle(evt)}
+                     ref={this.myInput} >
                         {this.state.data}
                 </div>
                 {nodes}
-            </div>
-                     );
+            </div>);
     }
 }
 
