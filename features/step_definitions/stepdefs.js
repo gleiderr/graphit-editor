@@ -6,6 +6,7 @@ const firebase = require('firebase');
 
 let browser;
 const test_ref = '__graphit-test__';
+const node_selector = '.Graphit-Node';
 
 const type = async (string, page) => {
   const focusedField = await page.$(':focus');
@@ -21,7 +22,7 @@ const delay = async (s, page) => {
 }
 
 const contents = page => {
-  return page.$$eval('.Graphit-Node', nodes => nodes.map(n => n.innerText));
+  return page.$$eval(node_selector, nodes => nodes.map(n => n.innerText));
 }
 
 BeforeAll({timeout: 60 * 1000}, async function () {
@@ -66,7 +67,7 @@ When('aguardar {int} segundo(s)', {timeout: 1000 * 30}, async function (n) {
 });
 
 When('clicar sobre o primeiro campo', async function () {
-  this.primeiroCampo = await this.page.$('.Graphit-Node');
+  this.primeiroCampo = await this.page.$(node_selector);
   await this.primeiroCampo.click();
 });
 
@@ -80,7 +81,7 @@ When('fechar a página', async function () {
 
 const assertSome = (innerTexts, test) => {
   assert.ok(innerTexts.some(innerText => innerText === test), 
-            `Teste: ${test}, Nodos existentes: ${innerTexts}`);
+            `Tst: ${test} Nodos: ${innerTexts}`);
 }
 
 Then('deve existir um campo com o texto {string}', async function (string) {
@@ -111,14 +112,39 @@ Then('deve existir um campo para cada livro da lista', async function () {
 });
 
 Then('cada livro deve estar com {int} identação', async function (int) {
+  const boxes = await this.page.$$eval(node_selector, (nodes, livros) => {
+    let livros_elems = nodes.filter(node => livros.some(node.innerText));
+    return livros_elems.map(elem => elem.getBoundingClientRect());
+  }, this.tabelaLivros.map((val) => val.livro));
 
+  console.log(boxes);
   // Write code here that turns the phrase above into concrete actions
   return 'pending';
 });
 
+const bounds = (page, textos) => {
+  return page.$$eval(node_selector, (nodes, textos) => {
+    const bs = {};
+    for (let i = 0; i < nodes.length; i++) {
+      let node = nodes[i];
+      if (textos.some(texto => texto === node.innerText)) {
+        let {x, y, bottom, top} = node.getBoundingClientRect();
+        bs[node.innerText] = {
+          x, y, bottom, top
+        };
+      }
+    }
+    return bs;
+  }, textos);
+}
+
 Then('o primeiro livro deve estar abaixo de {string}', async function (string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+  const primeiroLivro = this.tabelaLivros[0]['livro'];
+  const bs = await bounds(this.page, [primeiroLivro, string]);
+
+  assert(bs[primeiroLivro].top >= bs[string].bottom, 
+    `${primeiroLivro}.top: ${bs[primeiroLivro].top}, 
+     ${string}.bottom: ${bs[string].bottom}`);
 });
 
 Then('cada livro deve estar abaixo de seu antecessor', async function () {

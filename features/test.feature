@@ -53,7 +53,7 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E aguardar 2 segundos
         E fechar a página
         E acessar página 'localhost:3000'
-        E aguardar 2 segundos
+        E aguardar 4 segundos
         Então deve existir um campo com o texto "Bíblia Sagrada"
         E deve existir um campo para cada livro da lista
         E o primeiro livro deve estar abaixo de "Bíblia Sagrada"
