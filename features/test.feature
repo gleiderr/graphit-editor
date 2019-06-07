@@ -58,7 +58,7 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E deve existir um campo para cada livro da lista
         E o primeiro livro deve estar abaixo de "Bíblia Sagrada"
         E cada livro deve estar abaixo de seu antecessor
-        E cada livro deve estar com 1 identação
+        E cada livro deve estar com 10px de identação
 
     #Cenário: Exibição de nodo liberado para edição (verde, amarelo, vermelho)
     #Cenário: 

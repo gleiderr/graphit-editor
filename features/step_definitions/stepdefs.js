@@ -111,15 +111,17 @@ Then('deve existir um campo para cada livro da lista', async function () {
   }
 });
 
-Then('cada livro deve estar com {int} identação', async function (int) {
-  const boxes = await this.page.$$eval(node_selector, (nodes, livros) => {
-    let livros_elems = nodes.filter(node => livros.some(node.innerText));
-    return livros_elems.map(elem => elem.getBoundingClientRect());
-  }, this.tabelaLivros.map((val) => val.livro));
+Then('cada livro deve estar com {int}px de identação', async function (int) {
+  const livros = this.tabelaLivros.map((val) => val.livro);
+  const boxes = await bounds(this.page, livros);
 
-  console.log(boxes);
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+  for (let i = 0; i < livros.length; i++) {
+    let box_livro_cur = boxes[livros[i]];
+
+    console.log({box_livro_cur});
+    
+    assert(box_livro_cur.x === int, `Expect: ${int}, '${livros[i]}'.x: ${box_livro_cur.x}`);
+  }
 });
 
 const bounds = (page, textos) => {
@@ -143,11 +145,22 @@ Then('o primeiro livro deve estar abaixo de {string}', async function (string) {
   const bs = await bounds(this.page, [primeiroLivro, string]);
 
   assert(bs[primeiroLivro].top >= bs[string].bottom, 
-    `${primeiroLivro}.top: ${bs[primeiroLivro].top}, 
-     ${string}.bottom: ${bs[string].bottom}`);
+    `'${primeiroLivro}'.top: ${bs[primeiroLivro].top}, 
+     '${string}'.bottom: ${bs[string].bottom}`);
 });
 
 Then('cada livro deve estar abaixo de seu antecessor', async function () {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+  const livros = this.tabelaLivros.map((val) => val.livro);
+  const boxes = await bounds(this.page, livros);
+
+  for (let i = 1; i < livros.length; i++) {
+    let box_livro_cur = boxes[livros[i]];
+    let box_livro_ant = boxes[livros[i-1]];
+
+    console.log({box_livro_cur, box_livro_ant});
+    
+    assert(box_livro_cur.top >= box_livro_ant.bottom, 
+      `'${livros[i]}'.top: ${box_livro_cur.top}, 
+       '${livros[i-1]}'.bottom: ${box_livro_ant.bottom}`);
+  }
 });
