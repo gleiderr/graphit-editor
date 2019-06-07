@@ -117,9 +117,6 @@ Then('cada livro deve estar com {int}px de identação', async function (int) {
 
   for (let i = 0; i < livros.length; i++) {
     let box_livro_cur = boxes[livros[i]];
-
-    console.log({box_livro_cur});
-    
     assert(box_livro_cur.x === int, `Expect: ${int}, '${livros[i]}'.x: ${box_livro_cur.x}`);
   }
 });
@@ -156,8 +153,6 @@ Then('cada livro deve estar abaixo de seu antecessor', async function () {
   for (let i = 1; i < livros.length; i++) {
     let box_livro_cur = boxes[livros[i]];
     let box_livro_ant = boxes[livros[i-1]];
-
-    console.log({box_livro_cur, box_livro_ant});
     
     assert(box_livro_cur.top >= box_livro_ant.bottom, 
       `'${livros[i]}'.top: ${box_livro_cur.top}, 
