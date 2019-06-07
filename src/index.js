@@ -50,6 +50,23 @@ class Node extends React.Component {
         g.node(node);
     }
 
+    async insertNode(index) {
+        //console.log(this.state.data);
+
+        let node = await g.node({});
+
+        let adj = await g.adj({ from_id: this.props.id }); //Recupera lista da base de dados
+        
+        adj.list.splice(index, 0, node.id); //Insere elemento na posição index
+        //adj.list = [node.id, ...adj.list]; //Insere elemento na primeira posição
+
+        adj = await g.adj(adj) //Atribui na base de dados
+
+        this.state.list = [...adj.list];
+        this.state.focusChild = index; //Provoca foco em nodo recém criado
+        this.setState(this.state);
+    }
+
     inputHandle(evt) {
         this.setData(evt.target.innerText);
     }
@@ -58,17 +75,12 @@ class Node extends React.Component {
         switch(evt.key) {
             case 'Enter':
                 evt.preventDefault();
-                let node = await g.node({});
-
-                let adj = await g.adj({ from_id: this.props.id }); //Recupera lista da base de dados
                 
-                adj.list = [node.id, ...adj.list]; //Insere elemento na primeira posição
-
-                adj = await g.adj(adj) //Atribui na base de dados
-
-                this.state.list = adj.list;
-                this.state.focusChild = 0; //Provoca foco em nodo recém criado
-                this.setState(this.state);
+                if (this.props.insertNodeParent) {
+                    this.props.insertNodeParent(this.props.index + 1);
+                } else {
+                    this.insertNode(0);
+                }
                 break;
             default:
         }
@@ -77,14 +89,16 @@ class Node extends React.Component {
     componentDidMount() {
         if (this.state.focusPending) {
             this.myInput.current.focus();
+            this.setState({focusPending: false});
         }
     }
 
     render() {
         const nodes = this.state.list.map((id, i) => {
-            return (<Node key={id} id={id} 
+            return (<Node key={id} id={id} index={i}
                           focusPending={this.state.focusChild === i} 
-                          deep={this.props.deep + 1} />);
+                          deep={this.props.deep + 1}
+                          insertNodeParent={index => this.insertNode(index)} />);
         });
 
         const style = {
@@ -96,7 +110,7 @@ class Node extends React.Component {
         return (
             <div>
                 <div className="Graphit-Node" 
-                     contentEditable suppressContentEditableWarning={true}
+                     contentEditable suppressContentEditableWarning
                      style={style}
                      onInput={evt => this.inputHandle(evt)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
