@@ -57,6 +57,10 @@ Given('a seguinte lista de livros', async function (dataTable) {
   this.tabelaLivros = dataTable.hashes();
 });
 
+Given('a seguinte lista de capítulos do Evangelho de João', async function (dataTable) {
+  this.capítulosJoão = dataTable.hashes();
+});
+
 When('acessar página {string}', {timeout: 1000 * 30}, async function (url) {
   this.page = await browser.newPage();
   await this.page.goto(url);
@@ -71,7 +75,7 @@ When('clicar sobre o primeiro campo', async function () {
   await this.primeiroCampo.click();
 });
 
-When('digitar {string}', async function (string) {
+When('digitar {string}', {timeout: 1000 * 30}, async function (string) {
   await type(string, this.page);
 });
 
@@ -91,6 +95,12 @@ Then('deve existir um campo com o texto {string}', async function (string) {
 
 When('teclar "Enter"', async function() {
   await keypress('Enter', this.page);
+});
+
+When('teclar "Ctrl" + "Enter"', async function () {
+  await this.page.keyboard.down('Control');
+    await keypress('Enter', this.page);
+  await this.page.keyboard.up('Control');
 });
 
 When('digitar os livros teclando {string} com delay de {int} segundo(s):', {timeout: 1000 * 30}, 
@@ -158,4 +168,11 @@ Then('cada livro deve estar abaixo de seu antecessor', async function () {
       `'${livros[i]}'.top: ${box_livro_cur.top}, 
        '${livros[i-1]}'.bottom: ${box_livro_ant.bottom}`);
   }
+});
+
+Then('{string} deve estar com {int}px de identação', async function (string, int) {
+  const bs = await bounds(this.page, [string]);
+  console.log(bs);
+  
+  assert(bs[string].x === int, `'${string}.x: ${bs[string].x}, expected: ${int}`);
 });
