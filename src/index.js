@@ -76,13 +76,19 @@ class Node extends React.Component {
             case 'Enter':
                 evt.preventDefault();
                 
-                if (this.props.insertNodeParent) {
-                    this.props.insertNodeParent(this.props.index + 1);
-                } else {
+                if (evt.ctrlKey || !this.props.insertNodeParent) {
                     this.insertNode(0);
+                } else {
+                    this.props.insertNodeParent(this.props.index + 1);
                 }
                 break;
             default:
+        }
+    }
+
+    clickHandle(evt) {
+        if (evt.ctrlKey) {
+            
         }
     }
 
@@ -102,8 +108,6 @@ class Node extends React.Component {
         });
 
         const style = {
-            'borderStyle': 'solid',
-            'borderWidth': '1px',
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
 
@@ -114,6 +118,7 @@ class Node extends React.Component {
                      style={style}
                      onInput={evt => this.inputHandle(evt)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
+                     onClick={evt => this.clickHandle(evt)}
                      ref={this.myInput} >
                         {this.state.data}
                 </div>
