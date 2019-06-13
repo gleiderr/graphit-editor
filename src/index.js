@@ -50,15 +50,12 @@ class Node extends React.Component {
         g.node(node);
     }
 
-    async insertNode(index) {
-        //console.log(this.state.data);
-
-        let node = await g.node({});
+    async insertNode(index, id) {
+        let node = await g.node({ id });
 
         let adj = await g.adj({ from_id: this.props.id }); //Recupera lista da base de dados
         
         adj.list.splice(index, 0, node.id); //Insere elemento na posição index
-        //adj.list = [node.id, ...adj.list]; //Insere elemento na primeira posição
 
         adj = await g.adj(adj) //Atribui na base de dados
 
@@ -86,39 +83,64 @@ class Node extends React.Component {
         }
     }
 
-    clickHandle(evt) {
-        if (evt.ctrlKey) {
-            
-        }
+    dragStartHandle(evt, id) {
+        evt.dataTransfer.setData('text/plain', id);
+    }
+
+    dragOverHandle(evt) {
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy';        
+    }
+
+    dragEnterHandle(evt) {
+        evt.target.style.background = 'orange';
+    }
+
+    dragLeaveHandle(evt) {
+        evt.target.style.background = null;
+    }
+
+    dropHandle(evt) {
+        evt.preventDefault();
+        
+        evt.target.style.background = null;
+        
+        const id = evt.dataTransfer.getData('text/plain');
+        this.insertNode(0, id);
     }
 
     componentDidMount() {
         if (this.state.focusPending) {
-            this.myInput.current.focus();
+            this.myInput.current.focus();            
             this.setState({focusPending: false});
         }
     }
 
     render() {
-        const nodes = this.state.list.map((id, i) => {
-            return (<Node key={id} id={id} index={i}
+        const style = {
+            'marginLeft': ((10 * this.props.deep) + 'px'),
+        };
+
+        const nodes = this.props.deep >= 10 ? <div style={style}>...</div> : this.state.list.map((id, i) => {
+            return (<Node key={`${id}(${i})`} id={id} index={i}
                           focusPending={this.state.focusChild === i} 
                           deep={this.props.deep + 1}
                           insertNodeParent={index => this.insertNode(index)} />);
         });
 
-        const style = {
-            'marginLeft': ((10 * this.props.deep) + 'px'),
-        };
-
+        //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         return (
             <div>
                 <div className="Graphit-Node" 
-                     contentEditable suppressContentEditableWarning
+                     contentEditable suppressContentEditableWarning draggable
                      style={style}
                      onInput={evt => this.inputHandle(evt)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
-                     onClick={evt => this.clickHandle(evt)}
+                     onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
+                     onDragOver={evt => this.dragOverHandle(evt)}
+                     onDragEnter={evt => this.dragEnterHandle(evt)}
+                     onDragLeave={evt => this.dragLeaveHandle(evt)}
+                     onDrop={evt => this.dropHandle(evt)}
                      ref={this.myInput} >
                         {this.state.data}
                 </div>

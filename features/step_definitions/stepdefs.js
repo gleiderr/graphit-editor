@@ -172,7 +172,5 @@ Then('cada livro deve estar abaixo de seu antecessor', async function () {
 
 Then('{string} deve estar com {int}px de identação', async function (string, int) {
   const bs = await bounds(this.page, [string]);
-  console.log(bs);
-  
   assert(bs[string].x === int, `'${string}.x: ${bs[string].x}, expected: ${int}`);
 });
