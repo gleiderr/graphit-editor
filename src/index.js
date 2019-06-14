@@ -6,7 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase';
 import { Graphit } from 'graphit';
 const { Graphit_Firebase } = require('graphit-firebase');
-//const { Graphit_JSON } = require('graphit-json');
+const { Graphit_JSON } = require('graphit-json');
 
 const config = {
     apiKey: "AIzaSyDw44kycEYrMUc3RJ_WQ1Oe5ztZqx_S_is",
@@ -20,7 +20,11 @@ firebase.initializeApp(config);
 
 const test_ref = '__graphit-test__';
 const db = new Graphit_Firebase(firebase.database(), test_ref);
-const g = new Graphit(db);
+let g = new Graphit(db);
+
+const db_json = new Graphit_JSON();
+const g_json = new Graphit(db_json);
+g = g_json;
 
 class Node extends React.Component {
 
