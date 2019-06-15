@@ -11,8 +11,8 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E a seguinte lista de livros
             |livro              |
             |Evangelho de Mateus|
-            #|Evangelho de Marcos|
-            #|Evangelho de João  |
+            |Evangelho de Marcos|
+            |Evangelho de João  |
         E a seguinte lista de capítulos do Evangelho de João
             |Capítulo  |
             |Capítulo 1|
@@ -34,9 +34,9 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E aguardar 1 segundo
         E digitar "No princípio era o Verbo..."
         E aguardar 2 segundos
-        #E fechar a página
-        #E acessar página 'localhost:3000'
-        #E aguardar 4 segundos
+        E fechar a página
+        E acessar página 'localhost:3000'
+        E aguardar 4 segundos
         Então deve existir um campo com o texto "Bíblia Sagrada"
         E deve existir um campo para cada livro da lista
         E o primeiro livro deve estar abaixo de "Bíblia Sagrada"
