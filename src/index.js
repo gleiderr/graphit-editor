@@ -20,11 +20,43 @@ firebase.initializeApp(config);
 
 const test_ref = '__graphit-test__';
 const db = new Graphit_Firebase(firebase.database(), test_ref);
-let g = new Graphit(db);
+let g_firebase = new Graphit(db);
 
 const db_json = new Graphit_JSON();
 const g_json = new Graphit(db_json);
-g = g_json;
+//g = g_json;
+
+//Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
+const node_local = async ({id, data}) => {
+    let node;
+    if(id === undefined && data === undefined) {//: criação de nodo sem dado
+        node = await g_firebase.node({id, data});
+        await g_json.node({id: node.id, data: null});//salva dado localmente
+    } else if(id === undefined && data !== undefined) {//: criação de nodo com dado
+        node = await g_firebase.node({id, data});
+        await g_json.node({id: node.id, data});//salva dado localmente
+    } else if(id !== undefined && data === undefined) {//: recuperação de nodo e seu dado
+        node = await g_json.node({id, data}); //tentativa de recuperação local
+        if(node.data === undefined) { //se não recuperar, busca na base de dados
+            node = await g_firebase.node({id, data});
+            await g_json.node({id: node.id, data});//salva dado localmente
+        }
+    } else if(id !== undefined && data !== undefined) {//: atribuição de dado do nodo
+        node = await g_firebase.node({id, data});
+        await g_json.node({id, data});
+    }
+    return node;
+}
+
+const adj_local = async ({from_id, list}) => {
+    let adj;
+    if (list === undefined) { //recuperação
+        //adj = 
+    } else { //atribuição
+
+    }
+    return g_firebase.adj({from_id, list});
+}
 
 class Node extends React.Component {
 
@@ -39,8 +71,8 @@ class Node extends React.Component {
 
         this.myInput = React.createRef();
 
-        g.node({id: props.id}).then(gnode => {
-            g.adj({from_id: props.id}).then(glist => {
+        node_local({id: props.id}).then(gnode => {
+            adj_local({from_id: props.id}).then(glist => {
                 this.setState({ 
                     data: gnode.data,
                     list: glist.list
@@ -51,17 +83,17 @@ class Node extends React.Component {
 
     setData(data) {
         const node = {id: this.props.id, data};
-        g.node(node);
+        node_local(node);
     }
 
     async insertNode(index, id) {
-        let node = await g.node({ id });
+        let node = await node_local({ id });
 
-        let adj = await g.adj({ from_id: this.props.id }); //Recupera lista da base de dados
+        let adj = await adj_local({ from_id: this.props.id }); //Recupera lista da base de dados
         
         adj.list.splice(index, 0, node.id); //Insere elemento na posição index
 
-        adj = await g.adj(adj) //Atribui na base de dados
+        adj = await adj_local(adj) //Atribui na base de dados
 
         this.state.list = [...adj.list];
         this.state.focusChild = index; //Provoca foco em nodo recém criado
@@ -125,7 +157,7 @@ class Node extends React.Component {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
 
-        const nodes = this.props.deep >= 10 ? <div style={style}>...</div> : this.state.list.map((id, i) => {
+        const nodes = this.props.deep >= 100 ? <div style={style}>...</div> : this.state.list.map((id, i) => {
             return (<Node key={`${id}(${i})`} id={id} index={i}
                           focusPending={this.state.focusChild === i} 
                           deep={this.props.deep + 1}
