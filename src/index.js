@@ -50,12 +50,18 @@ const node_local = async ({id, data}) => {
 
 const adj_local = async ({from_id, list}) => {
     let adj;
+    
     if (list === undefined) { //recuperação
-        //adj = 
+        adj = await g_json.adj({from_id, list}); //tentativa de recuperação local
+        if (!adj.list.length) {            
+            adj = await g_firebase.adj({from_id, list}); //recuperação remota
+            await g_json.adj(adj); //atribuição local
+        }
     } else { //atribuição
-
+        adj = await g_firebase.adj({from_id, list}); //atribuição remota
+        await g_json.adj(adj); //atribuição local
     }
-    return g_firebase.adj({from_id, list});
+    return adj;
 }
 
 class Node extends React.Component {
