@@ -52,8 +52,9 @@ const adj_local = async ({from_id, list}) => {
     let adj;
     
     if (list === undefined) { //recuperação
+        
         adj = await g_json.adj({from_id, list}); //tentativa de recuperação local
-        if (!adj.list.length) {            
+        if (adj.list === undefined) {
             adj = await g_firebase.adj({from_id, list}); //recuperação remota
             await g_json.adj(adj); //atribuição local
         }
@@ -97,7 +98,11 @@ class Node extends React.Component {
 
         let adj = await adj_local({ from_id: this.props.id }); //Recupera lista da base de dados
         
-        adj.list.splice(index, 0, node.id); //Insere elemento na posição index
+        if(adj.list === undefined){
+            adj.list = [node.id];
+        } else {
+            adj.list.splice(index, 0, node.id); //Insere elemento na posição index
+        }
 
         adj = await adj_local(adj) //Atribui na base de dados
 
@@ -163,7 +168,10 @@ class Node extends React.Component {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
 
-        const nodes = this.props.deep >= 100 ? <div style={style}>...</div> : this.state.list.map((id, i) => {
+        const nodes = this.props.deep >= 100 ? 
+                        <div style={style}>...</div> : 
+                        this.state.list && 
+                        this.state.list.map((id, i) => {
             return (<Node key={`${id}(${i})`} id={id} index={i}
                           focusPending={this.state.focusChild === i} 
                           deep={this.props.deep + 1}
@@ -172,7 +180,7 @@ class Node extends React.Component {
 
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         return (
-            <div>
+            <>
                 <div className="Graphit-Node" 
                      contentEditable suppressContentEditableWarning draggable
                      style={style}
@@ -187,7 +195,7 @@ class Node extends React.Component {
                         {this.state.data}
                 </div>
                 {nodes}
-            </div>);
+            </>);
     }
 }
 
