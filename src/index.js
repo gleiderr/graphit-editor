@@ -91,6 +91,7 @@ class Node extends React.Component {
     setData(data) {
         const node = {id: this.props.id, data};
         node_local(node);
+        this.setState({data});
     }
 
     async insertNode(index, id) {
@@ -106,9 +107,10 @@ class Node extends React.Component {
 
         adj = await adj_local(adj) //Atribui na base de dados
 
-        this.state.list = [...adj.list];
-        this.state.focusChild = index; //Provoca foco em nodo recém criado
-        this.setState(this.state);
+        this.setState({
+            list: adj.list,
+            focusChild: index,
+        });
     }
 
     inputHandle(evt) {
@@ -161,6 +163,16 @@ class Node extends React.Component {
             this.myInput.current.focus();            
             this.setState({focusPending: false});
         }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        //https://github.com/facebook/react/issues/2047
+        let shouldUpdate = nextState.data !== this.myInput.current.innerText;
+        for (const key in nextState) {
+            if(shouldUpdate) return shouldUpdate;
+            if(key !== 'data') shouldUpdate = shouldUpdate || (this.state[key] !== nextState[key]);
+        }
+        return shouldUpdate;
     }
 
     render() {
