@@ -65,11 +65,27 @@ const adj_local = async ({from_id, list}) => {
     return adj;
 }
 
+const GraphitContext = React.createContext({
+    adj_local
+});
+
+function GraphitApp(props) {
+    return (
+        <GraphitContext.Provider value={{
+            adj_local
+        }}>
+            <Node id='0' deep={0} />
+        </GraphitContext.Provider>
+    );
+}
+
 class Node extends React.Component {
+    
+    static contextType = GraphitContext;
 
     constructor(props) {
         super(props);
-
+        
         this.state = {
             data: undefined,
             list: [],
@@ -159,6 +175,7 @@ class Node extends React.Component {
     }
 
     componentDidMount() {
+        console.log(this.context);
         if (this.state.focusPending) {
             this.myInput.current.focus();            
             this.setState({focusPending: false});
@@ -211,7 +228,7 @@ class Node extends React.Component {
     }
 }
 
-ReactDOM.render(<Node id='0' deep={0} />, document.getElementById('root'));
+ReactDOM.render(<GraphitApp />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
