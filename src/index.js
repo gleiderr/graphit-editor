@@ -69,14 +69,28 @@ const GraphitContext = React.createContext({
     adj_local
 });
 
-function GraphitApp(props) {
-    return (
-        <GraphitContext.Provider value={{
-            adj_local
-        }}>
-            <Node id='0' deep={0} />
-        </GraphitContext.Provider>
-    );
+class GraphitApp extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {teste: 'teste'};
+        this.inputHandle = this.inputHandle.bind(this);
+    }
+
+    inputHandle(newValue) {        
+        this.setState({});
+    }
+
+    render() {
+        const state = this.state;
+        return (
+            <GraphitContext.Provider value={{
+                state,
+                inputHandle: this.inputHandle
+            }}>
+                <Node id='0' deep={0} />
+            </GraphitContext.Provider>
+        );
+    }
 }
 
 class Node extends React.Component {
@@ -130,6 +144,7 @@ class Node extends React.Component {
     }
 
     inputHandle(evt) {
+        this.context.inputHandle(evt.target.innerText);
         this.setData(evt.target.innerText);
     }
 
@@ -174,8 +189,20 @@ class Node extends React.Component {
         this.insertNode(0, id);
     }
 
+    componentDidUpdate() {
+        //console.log('componentDidUpdate', this.context);
+        node_local({id: this.props.id}).then(gnode => {
+            adj_local({from_id: this.props.id}).then(glist => {
+                this.setState({ 
+                    data: gnode.data,
+                    list: glist.list
+                });
+            })
+        });
+    }
+
     componentDidMount() {
-        console.log(this.context);
+        console.log('componentDidMount', this.context);
         if (this.state.focusPending) {
             this.myInput.current.focus();            
             this.setState({focusPending: false});
