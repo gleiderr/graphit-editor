@@ -76,7 +76,8 @@ class GraphitApp extends React.Component {
         this.inputHandle = this.inputHandle.bind(this);
     }
 
-    inputHandle(newValue) {        
+    async inputHandle(id, data) {
+        await node_local({id, data});
         this.setState({});
     }
 
@@ -118,11 +119,11 @@ class Node extends React.Component {
         });
     }
 
-    setData(data) {
+    /*setData(data) {
         const node = {id: this.props.id, data};
         node_local(node);
-        this.setState({data});
-    }
+        //this.setState({data});
+    }*/
 
     async insertNode(index, id) {
         let node = await node_local({ id });
@@ -143,10 +144,10 @@ class Node extends React.Component {
         });
     }
 
-    inputHandle(evt) {
-        this.context.inputHandle(evt.target.innerText);
+    /*inputHandle(evt) {
         this.setData(evt.target.innerText);
-    }
+        this.context.inputHandle(evt.target.innerText);
+    }*/
 
     async keyDownHandle(evt) {
         switch(evt.key) {
@@ -190,19 +191,22 @@ class Node extends React.Component {
     }
 
     componentDidUpdate() {
-        //console.log('componentDidUpdate', this.context);
-        node_local({id: this.props.id}).then(gnode => {
-            adj_local({from_id: this.props.id}).then(glist => {
+        node_local({id: this.props.id}).then(gnode => {  
+            if (this.myInput.current != document.activeElement) {
                 this.setState({ 
-                    data: gnode.data,
-                    list: glist.list
+                    data: gnode.data
                 });
-            })
+            }
         });
+        /*adj_local({from_id: this.props.id}).then(glist => {
+            console.log('componentDidUpdate', 'list');
+            this.setState({
+                list: glist.list
+            });
+        })*/
     }
 
     componentDidMount() {
-        console.log('componentDidMount', this.context);
         if (this.state.focusPending) {
             this.myInput.current.focus();            
             this.setState({focusPending: false});
@@ -240,7 +244,7 @@ class Node extends React.Component {
                 <div className="Graphit-Node" 
                      contentEditable suppressContentEditableWarning draggable
                      style={style}
-                     onInput={evt => this.inputHandle(evt)}
+                     onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
                      onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
                      onDragOver={evt => this.dragOverHandle(evt)}
