@@ -74,19 +74,44 @@ class GraphitApp extends React.Component {
         super(props);
         this.state = {teste: 'teste'};
         this.inputHandle = this.inputHandle.bind(this);
+        this.insertNode = this.insertNode.bind(this);
     }
 
     async inputHandle(id, data) {
         await node_local({id, data});
-        this.setState({});
+        this.setState({}); //Força atualização dos nodos
+    }
+
+    /**
+     * Insere referência a nodo [id] a partir do nodo [from_id] na posição [index].
+     * @param {Number} index 
+     * @param {String} from_id 
+     * @param {String} id 
+     */
+    async insertNode(index, from_id, id = undefined) {
+        //Recupera nodo e lista da base de dados
+        let node = await node_local({ id }); 
+        let adj = await adj_local({ from_id });
+        
+        //Insere elemento na posição index
+        if(adj.list === undefined){
+            adj.list = [node.id];
+        } else {
+            adj.list.splice(index, 0, node.id);
+        }
+
+        adj = await adj_local(adj) //Atribui lista na base de dados
+
+        this.setState({}); //Força atualização dos nodos
     }
 
     render() {
-        const state = this.state;
+        //const state = this.state;
         return (
             <GraphitContext.Provider value={{
-                state,
-                inputHandle: this.inputHandle
+                //state,
+                inputHandle: this.inputHandle,
+                insertNode: this.insertNode
             }}>
                 <Node id='0' deep={0} />
             </GraphitContext.Provider>
@@ -112,7 +137,7 @@ class Node extends React.Component {
         node_local({id: props.id}).then(gnode => {
             adj_local({from_id: props.id}).then(glist => {
                 this.setState({ 
-                    data: gnode.data,
+                    data: gnode.data || '',
                     list: glist.list
                 });
             })
@@ -155,7 +180,9 @@ class Node extends React.Component {
                 evt.preventDefault();
                 
                 if (evt.ctrlKey || !this.props.insertNodeParent) {
-                    this.insertNode(0);
+                    //this.insertNode(0);
+                    this.context.insertNode(0, this.props.id);
+                    this.setState({focusChild: 0});
                 } else {
                     this.props.insertNodeParent(this.props.index + 1);
                 }
@@ -191,19 +218,24 @@ class Node extends React.Component {
     }
 
     componentDidUpdate() {
-        node_local({id: this.props.id}).then(gnode => {  
-            if (this.myInput.current != document.activeElement) {
-                this.setState({ 
-                    data: gnode.data
+        if (this.myInput.current != document.activeElement) {
+            node_local({id: this.props.id}).then(gnode => {
+                if (gnode.data !== this.state.data) {
+                    this.setState({ 
+                        data: gnode.data || ''
+                    });
+                }
+            });
+        }
+
+        adj_local({from_id: this.props.id}).then(glist => {
+            console.log('componentDidUpdate', 'list');
+            if (glist.list !== this.state.list) {
+                this.setState({
+                    list: glist.list
                 });
             }
-        });
-        /*adj_local({from_id: this.props.id}).then(glist => {
-            console.log('componentDidUpdate', 'list');
-            this.setState({
-                list: glist.list
-            });
-        })*/
+        })
     }
 
     componentDidMount() {
