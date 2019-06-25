@@ -137,7 +137,7 @@ class Node extends React.Component {
         node_local({id: props.id}).then(gnode => {
             adj_local({from_id: props.id}).then(glist => {
                 this.setState({ 
-                    data: gnode.data || '',
+                    data: gnode.data,
                     list: glist.list
                 });
             })
@@ -151,22 +151,8 @@ class Node extends React.Component {
     }*/
 
     async insertNode(index, id) {
-        let node = await node_local({ id });
-
-        let adj = await adj_local({ from_id: this.props.id }); //Recupera lista da base de dados
-        
-        if(adj.list === undefined){
-            adj.list = [node.id];
-        } else {
-            adj.list.splice(index, 0, node.id); //Insere elemento na posição index
-        }
-
-        adj = await adj_local(adj) //Atribui na base de dados
-
-        this.setState({
-            list: adj.list,
-            focusChild: index,
-        });
+        this.context.insertNode(index, this.props.id, id);
+        this.setState({ focusChild: index });
     }
 
     /*inputHandle(evt) {
@@ -180,9 +166,7 @@ class Node extends React.Component {
                 evt.preventDefault();
                 
                 if (evt.ctrlKey || !this.props.insertNodeParent) {
-                    //this.insertNode(0);
-                    this.context.insertNode(0, this.props.id);
-                    this.setState({focusChild: 0});
+                    this.insertNode(0);
                 } else {
                     this.props.insertNodeParent(this.props.index + 1);
                 }
@@ -222,15 +206,15 @@ class Node extends React.Component {
             node_local({id: this.props.id}).then(gnode => {
                 if (gnode.data !== this.state.data) {
                     this.setState({ 
-                        data: gnode.data || ''
+                        data: gnode.data
                     });
                 }
             });
         }
 
         adj_local({from_id: this.props.id}).then(glist => {
-            console.log('componentDidUpdate', 'list');
             if (glist.list !== this.state.list) {
+                console.log('componentDidUpdate', 'list');
                 this.setState({
                     list: glist.list
                 });
@@ -245,7 +229,7 @@ class Node extends React.Component {
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    /*shouldComponentUpdate(nextProps, nextState) {
         //https://github.com/facebook/react/issues/2047
         let shouldUpdate = nextState.data !== this.myInput.current.innerText;
         for (const key in nextState) {
@@ -253,22 +237,25 @@ class Node extends React.Component {
             if(key !== 'data') shouldUpdate = shouldUpdate || (this.state[key] !== nextState[key]);
         }
         return shouldUpdate;
-    }
+    }*/
 
     render() {
         const style = {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
-
-        const nodes = this.props.deep >= 100 ? 
-                        <div style={style}>...</div> : 
-                        this.state.list && 
-                        this.state.list.map((id, i) => {
-            return (<Node key={`${id}(${i})`} id={id} index={i}
+        let nodes;
+        if (this.props.deep >= 100) {
+            nodes = <div style={style}>...</div>;
+        } else if (this.state.list) {
+            nodes = this.state.list.map((id, i) => {
+                return (<Node key={`${id}(${i})`} id={id} index={i}
+                              focusPending={this.state.focusChild === i} 
                           focusPending={this.state.focusChild === i} 
-                          deep={this.props.deep + 1}
-                          insertNodeParent={index => this.insertNode(index)} />);
-        });
+                              focusPending={this.state.focusChild === i} 
+                              deep={this.props.deep + 1}
+                              insertNodeParent={index => this.insertNode(index)} />);
+            });
+        }
 
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         return (
