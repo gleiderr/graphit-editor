@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-//import App from './App';
 import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase';
 import { Graphit } from 'graphit';
@@ -24,7 +23,6 @@ let g_firebase = new Graphit(db);
 
 const db_json = new Graphit_JSON();
 const g_json = new Graphit(db_json);
-//g = g_json;
 
 //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
 const node_local = async ({id, data}) => {
@@ -106,10 +104,8 @@ class GraphitApp extends React.Component {
     }
 
     render() {
-        //const state = this.state;
         return (
             <GraphitContext.Provider value={{
-                //state,
                 inputHandle: this.inputHandle,
                 insertNode: this.insertNode
             }}>
@@ -125,6 +121,8 @@ class Node extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.resetFocusChild = this.resetFocusChild.bind(this);
         
         this.state = {
             data: undefined,
@@ -144,21 +142,14 @@ class Node extends React.Component {
         });
     }
 
-    /*setData(data) {
-        const node = {id: this.props.id, data};
-        node_local(node);
-        //this.setState({data});
-    }*/
-
     async insertNode(index, id) {
         this.context.insertNode(index, this.props.id, id);
         this.setState({ focusChild: index });
     }
 
-    /*inputHandle(evt) {
-        this.setData(evt.target.innerText);
-        this.context.inputHandle(evt.target.innerText);
-    }*/
+    resetFocusChild() {
+        this.setState({ focusChild: undefined });
+    }
 
     async keyDownHandle(evt) {
         switch(evt.key) {
@@ -202,6 +193,7 @@ class Node extends React.Component {
     }
 
     componentDidUpdate() {
+        // eslint-disable-next-line eqeqeq
         if (this.myInput.current != document.activeElement) {
             node_local({id: this.props.id}).then(gnode => {
                 if (gnode.data !== this.state.data) {
@@ -214,7 +206,6 @@ class Node extends React.Component {
 
         adj_local({from_id: this.props.id}).then(glist => {
             if (glist.list !== this.state.list) {
-                console.log('componentDidUpdate', 'list');
                 this.setState({
                     list: glist.list
                 });
@@ -224,7 +215,8 @@ class Node extends React.Component {
 
     componentDidMount() {
         if (this.state.focusPending) {
-            this.myInput.current.focus();            
+            this.myInput.current.focus();
+            this.props.resetFocusParent();
             this.setState({focusPending: false});
         }
     }
@@ -249,9 +241,8 @@ class Node extends React.Component {
         } else if (this.state.list) {
             nodes = this.state.list.map((id, i) => {
                 return (<Node key={`${id}(${i})`} id={id} index={i}
-                              focusPending={this.state.focusChild === i} 
-                          focusPending={this.state.focusChild === i} 
-                              focusPending={this.state.focusChild === i} 
+                              focusPending={this.state.focusChild === i}
+                              resetFocusParent={this.resetFocusChild}
                               deep={this.props.deep + 1}
                               insertNodeParent={index => this.insertNode(index)} />);
             });
