@@ -49,6 +49,11 @@ AfterAll(async function() {
   console.log('Fim!');
 });
 
+Given('a base {string} em teste', async function (string) {
+  const innerText = await this.page.$eval('#graphit_ref', el => el.innerText);
+  assert.equal(innerText, string);
+});
+
 Given('que não há informação gravada na base de dados', async function () {
   await firebase.database().ref(test_ref).remove();
 });

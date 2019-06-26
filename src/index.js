@@ -17,8 +17,9 @@ const config = {
 };
 firebase.initializeApp(config);
 
-const test_ref = '__graphit-test__';
-const db = new Graphit_Firebase(firebase.database(), test_ref);
+const graphit_ref = '__graphit-test__';
+//const graphit_ref = 'graphit';
+const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
 const db_json = new Graphit_JSON();
@@ -105,12 +106,15 @@ class GraphitApp extends React.Component {
 
     render() {
         return (
-            <GraphitContext.Provider value={{
-                inputHandle: this.inputHandle,
-                insertNode: this.insertNode
-            }}>
-                <Node id='0' deep={0} />
-            </GraphitContext.Provider>
+            <div style={ graphit_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
+                <div id='graphit_ref' style={{display: 'none'}}>{graphit_ref}</div>
+                <GraphitContext.Provider value={{
+                    inputHandle: this.inputHandle,
+                    insertNode: this.insertNode
+                }}>
+                    <Node id='0' deep={0} />
+                </GraphitContext.Provider>
+            </div>
         );
     }
 }

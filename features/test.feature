@@ -2,13 +2,15 @@
 Funcionalidade: Redação de nodos bíblicos e seus comentários
     Eu como estudante da Bíblia Sagrada desejo escrever textos bíblicos, relacioná-los a seus respectivos versículos, livros e capítulos. Além de escrever comentários reutilizáveis que estejam relacionados à Bíblia, versículos, livros, capítulos ou outros comentários. Isso porque durante a leitura tenho várias revelações e entendimentos que se não forem registrados podem ser esquecidos.
 
-    Background: Background name
-        #Dado que é aceito um delay de 1 segundo após "acesso a página"
-        #E que é aceito um delay de 1 segundo após "terminar de digitar" 
+    Contexto: Acesso base de teste limpa
+        Dado acessar página 'localhost:3000'
+        E aguardar 1 segundo
+        E a base "__graphit-test__" em teste
+        E fechar a página
+        Dado que não há informação gravada na base de dados
 
     Cenário: Inclusão de título de livros em "Bíblia Sagrada"
-        Dado que não há informação gravada na base de dados
-        E a seguinte lista de livros
+        Dado a seguinte lista de livros
             |livro              |
             |Evangelho de Mateus|
             |Evangelho de Marcos|
@@ -33,6 +35,10 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         E teclar "Ctrl" + "Enter"
         E aguardar 1 segundo
         E digitar "No princípio era o Verbo..."
+        #E aguardar 1 segundo
+        #E teclar "Ctrl" + "Enter"
+        #E digitar "Comentário..."
+        #E arrastar comentário para primeiro livro
         E aguardar 2 segundos
         E fechar a página
         E acessar página 'localhost:3000'
