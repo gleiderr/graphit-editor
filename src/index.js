@@ -17,8 +17,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
-const graphit_ref = '__graphit-test__';
-//const graphit_ref = 'graphit';
+//const graphit_ref = '__graphit-test__';
+const graphit_ref = 'graphit';
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
@@ -132,6 +132,7 @@ class Node extends React.Component {
             data: undefined,
             list: [],
             focusPending: props.focusPending,
+            opened: false || graphit_ref === '__graphit-test__'
         };
 
         this.myInput = React.createRef();
@@ -148,7 +149,7 @@ class Node extends React.Component {
 
     async insertNode(index, id) {
         this.context.insertNode(index, this.props.id, id);
-        this.setState({ focusChild: index });
+        this.setState({ focusChild: index, opened: true });
     }
 
     resetFocusChild() {
@@ -242,7 +243,7 @@ class Node extends React.Component {
         let nodes;
         if (this.props.deep >= 100) {
             nodes = <div style={style}>...</div>;
-        } else if (this.state.list) {
+        } else if (this.state.opened && this.state.list) {
             nodes = this.state.list.map((id, i) => {
                 return (<Node key={`${id}(${i})`} id={id} index={i}
                               focusPending={this.state.focusChild === i}
@@ -265,6 +266,7 @@ class Node extends React.Component {
                      onDragEnter={evt => this.dragEnterHandle(evt)}
                      onDragLeave={evt => this.dragLeaveHandle(evt)}
                      onDrop={evt => this.dropHandle(evt)}
+                     onDoubleClick={() => this.setState({opened: this.state.opened === false})}
                      ref={this.myInput} >
                         {this.state.data}
                 </div>
