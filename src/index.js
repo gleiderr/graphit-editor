@@ -240,6 +240,8 @@ class Node extends React.Component {
         const style = {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
+
+
         let nodes;
         if (this.props.deep >= 100) {
             nodes = <div style={style}>...</div>;
@@ -253,12 +255,15 @@ class Node extends React.Component {
             });
         }
 
+        let tabs = '\t'.repeat(this.props.deep);
+
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         return (
-            <>
-                <div className="Graphit-Node" 
+            <div>
+                <span style={{'white-space': 'pre-wrap'}}>{tabs}</span>
+                <span className="Graphit-Node" 
                      contentEditable suppressContentEditableWarning draggable
-                     style={style}
+                     //style={style}
                      onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
                      onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
@@ -269,9 +274,9 @@ class Node extends React.Component {
                      onDoubleClick={() => this.setState({opened: this.state.opened === false})}
                      ref={this.myInput} >
                         {this.state.data}
-                </div>
+                </span>
                 {nodes}
-            </>);
+            </div>);
     }
 }
 
