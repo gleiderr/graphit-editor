@@ -17,8 +17,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
-//const graphit_ref = '__graphit-test__';
-const graphit_ref = 'graphit';
+const graphit_ref = '__graphit-test__';
+//const graphit_ref = 'graphit';
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
@@ -240,6 +240,8 @@ class Node extends React.Component {
         const style = {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
+
+
         let nodes;
         if (this.props.deep >= 100) {
             nodes = <div style={style}>...</div>;
@@ -253,12 +255,16 @@ class Node extends React.Component {
             });
         }
 
+        let tabs = '\t'.repeat(this.props.deep);
+
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         return (
             <>
+            <div className="Row">
+                <div className="Indent">{tabs}</div>
                 <div className="Graphit-Node" 
                      contentEditable suppressContentEditableWarning draggable
-                     style={style}
+                     //style={style}
                      onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
                      onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
@@ -270,7 +276,8 @@ class Node extends React.Component {
                      ref={this.myInput} >
                         {this.state.data}
                 </div>
-                {nodes}
+            </div>
+            {nodes}
             </>);
     }
 }

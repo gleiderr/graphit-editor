@@ -13,7 +13,16 @@ code {
     monospace;
 }
 
+.Row {
+  display: flex;
+}
+
 .Graphit-Node {
   border-style: solid;
   border-width: 1px;
+  flex: 1;
+}
+
+.Indent {
+  white-space: pre;
 }
