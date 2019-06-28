@@ -12,3 +12,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.Graphit-Node {
+  border-style: solid;
+  border-width: 1px;
+}
