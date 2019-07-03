@@ -17,8 +17,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
-const graphit_ref = '__graphit-test__';
-//const graphit_ref = 'graphit';
+//const graphit_ref = '__graphit-test__';
+const graphit_ref = 'graphit';
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
@@ -256,15 +256,20 @@ class Node extends React.Component {
         }
 
         let tabs = '\t'.repeat(this.props.deep);
+        const tabSize = '2rem';
+        const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
 
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
+        //https://www.w3schools.com/cssref/css3_pr_tab-size.asp
+        //https://developer.mozilla.org/en-US/docs/Web/CSS/tab-size
+        //https://developer.mozilla.org/en-US/docs/Web/CSS/calc
         return (
             <>
             <div className="Row">
-                <div className="Indent">{tabs}</div>
-                <div className="Graphit-Node" 
+                <span className="Indent"style={{tabSize}}>{tabs}</span>
+                <span className="Graphit-Node" 
                      contentEditable suppressContentEditableWarning draggable
-                     //style={style}
+                     style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}
                      onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
                      onKeyDown={evt => this.keyDownHandle(evt)}
                      onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
@@ -275,7 +280,7 @@ class Node extends React.Component {
                      onDoubleClick={() => this.setState({opened: this.state.opened === false})}
                      ref={this.myInput} >
                         {this.state.data}
-                </div>
+                </span>
             </div>
             {nodes}
             </>);

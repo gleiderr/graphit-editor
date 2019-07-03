@@ -14,13 +14,13 @@ code {
 }
 
 .Row {
-  display: flex;
+  /*display: inline-flexbox;*/
 }
 
 .Graphit-Node {
   border-style: solid;
   border-width: 1px;
-  flex: 1;
+  display: inline-grid;
 }
 
 .Indent {
