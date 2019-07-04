@@ -179,3 +179,8 @@ Then('{string} deve estar com {int}px de identação', async function (string, i
   const bs = await bounds(this.page, [string]);
   assert(bs[string].x === int, `'${string}.x: ${bs[string].x}, expected: ${int}`);
 });
+
+Then('o conteúdo da página deve ser', async function (string) {
+  const innerText = await this.page.$eval('#root', el => el.innerText);
+  assert.equal(string, innerText);
+});

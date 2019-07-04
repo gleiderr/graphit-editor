@@ -17,8 +17,8 @@ const config = {
 };
 firebase.initializeApp(config);
 
-//const graphit_ref = '__graphit-test__';
-const graphit_ref = 'graphit';
+const graphit_ref = '__graphit-test__';
+//const graphit_ref = 'graphit';
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
