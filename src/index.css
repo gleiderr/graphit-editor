@@ -13,9 +13,16 @@ code {
     monospace;
 }
 
+/* Estilo para que linhas vazias tenham mesma altura que linhas preenchidas*/
+/*https://stackoverflow.com/questions/14217902/how-to-set-empty-span-height-equal-to-default-line-height*/
+span:empty::before {
+  content: "\200b";
+}
+
 .Row {
   /*display: inline-flexbox;*/
 }
+
 
 .Graphit-Node {
   border-style: solid;
