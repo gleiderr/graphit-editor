@@ -49,6 +49,10 @@ AfterAll(async function() {
   console.log('Fim!');
 });
 
+Given( 'as instruções', {timeout: 1000 * 30}, async function(dataTable) {
+  this.textosComandos = dataTable.hashes();
+})
+
 Given('a base {string} em teste', async function (string) {
   const innerText = await this.page.$eval('#graphit_ref', el => el.innerText);
   assert.equal(innerText, string);
@@ -78,6 +82,67 @@ When('aguardar {int} segundo(s)', {timeout: 1000 * 30}, async function (n) {
 When('clicar sobre o primeiro campo', async function () {
   this.primeiroCampo = await this.page.$(node_selector);
   await this.primeiroCampo.click();
+});
+
+When('executar as instruções', {timeout: 1000 * 30}, async function () {
+  for (let linha of this.textosComandos) {
+    switch (linha['pré']) {
+      case 'digitar':
+        await this.page.type(':focus', linha['Texto']); //armazena elemento do pptr
+        break;
+      case 'arrastar':
+        // somente verifica no pós comando
+        break;
+      default:
+        throw new Error(`Comando não implementado: ${linha['pré']}`)
+    }
+
+    switch (linha['pós']) {
+      case 'Enter':
+        await keypress('Enter', this.page);
+        await this.page.waitFor(200); //>500
+        break;
+      case 'Ctrl + Enter':
+        await this.page.keyboard.down('Control');
+          await keypress('Enter', this.page);
+        await this.page.keyboard.up('Control');
+        await this.page.waitFor(200); //>500
+        break;
+      case '':
+        break; //nope
+      default:
+        if (linha['pré'] === 'arrastar') {
+          //Desenvolvido arraste falso devido à incapacidade atual do puppeteer
+          //https://stackoverflow.com/questions/54561552/react-dragdrop-using-python-selenim-puppeteer
+          //https://stackoverflow.com/questions/55848831/how-to-simulate-drag-drop-action-in-pupeteer
+          //https://github.com/GoogleChrome/puppeteer/issues/1265
+          //Mouse: https://github.com/GoogleChrome/puppeteer/blob/master/lib/Input.js
+          //https://chromedevtools.github.io/devtools-protocol/tot/Input
+          const nodes = await this.page.$$(node_selector);
+          const aux = {};
+          for (const node of nodes) {
+            const inner = await this.page.evaluate(el => el.innerText, node);
+            if ( inner === linha['Texto'] || inner === linha['pós']) {
+              aux[inner] = node;
+            }
+          }
+          
+          //await aux[linha['Texto']].hover();
+          //await mouse.down();
+          await aux[linha['Texto']].click();
+          await this.page.keyboard.down('Control');
+            await keypress('KeyC', this.page);
+          await this.page.keyboard.up('Control');
+          
+          //await aux[linha['pós']].hover();
+          //await mouse.up();
+          await aux[linha['pós']].click();
+          await this.page.keyboard.down('Control');
+            await keypress('KeyV', this.page);
+          await this.page.keyboard.up('Control');
+        }
+    }
+  }
 });
 
 When('digitar {string}', {timeout: 1000 * 30}, async function (string) {

@@ -19,6 +19,7 @@ firebase.initializeApp(config);
 
 const graphit_ref = '__graphit-test__';
 //const graphit_ref = 'graphit';
+
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
 
@@ -118,6 +119,7 @@ class GraphitApp extends React.Component {
         );
     }
 }
+let dragging_id;
 
 class Node extends React.Component {
     
@@ -172,6 +174,10 @@ class Node extends React.Component {
     }
 
     dragStartHandle(evt, id) {
+        if (graphit_ref === '__graphit-test__') {
+            dragging_id = id;
+            return;
+        }
         evt.dataTransfer.setData('text/plain', id);
     }
 
@@ -190,7 +196,10 @@ class Node extends React.Component {
 
     dropHandle(evt) {
         evt.preventDefault();
-        
+        if (graphit_ref === '__graphit-test__') {
+            this.insertNode(0, dragging_id);
+            return;
+        }        
         evt.target.style.background = null;
         
         const id = evt.dataTransfer.getData('text/plain');
@@ -278,6 +287,11 @@ class Node extends React.Component {
                      onDragLeave={evt => this.dragLeaveHandle(evt)}
                      onDrop={evt => this.dropHandle(evt)}
                      onDoubleClick={() => this.setState({opened: this.state.opened === false})}
+                     
+                     //Somente para simular drag-n-drop na base de testes
+                     onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
+                     onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
+                     
                      ref={this.myInput} >
                         {this.state.data}
                 </span>
