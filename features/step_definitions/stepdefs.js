@@ -88,6 +88,8 @@ When('executar as instruções', {timeout: 1000 * 30}, async function () {
   for (let linha of this.textosComandos) {
     switch (linha['pré']) {
       case 'digitar':
+        await this.page.waitFor(200);
+        await this.page.keyboard.press('End');
         await this.page.type(':focus', linha['Texto']); //armazena elemento do pptr
         break;
       case 'arrastar':
@@ -100,13 +102,11 @@ When('executar as instruções', {timeout: 1000 * 30}, async function () {
     switch (linha['pós']) {
       case 'Enter':
         await keypress('Enter', this.page);
-        await this.page.waitFor(200); //>500
         break;
       case 'Ctrl + Enter':
         await this.page.keyboard.down('Control');
           await keypress('Enter', this.page);
         await this.page.keyboard.up('Control');
-        await this.page.waitFor(200); //>500
         break;
       case '':
         break; //nope
