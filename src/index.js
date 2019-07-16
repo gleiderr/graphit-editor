@@ -141,12 +141,8 @@ class Edge extends React.Component {
         // eslint-disable-next-line eqeqeq
         if (this.myInput.current != document.activeElement) {
             node_local({id: this.state.label}).then(gnode => {
-                if (gnode.data !== this.state.data || gnode.id !== this.state.label) {
-                    if (this.state.label === undefined) {
-
-                    }
+                if (gnode.data !== this.state.data) {
                     this.setState({
-                        label: gnode.id,
                         data: gnode.data
                     });
                 }
@@ -154,11 +150,19 @@ class Edge extends React.Component {
         }
     }
 
+    async inputHandle(label, innerText) {
+        if (label === undefined) { // Define novo nodo para armazenar conteúdo da aresta
+            const node = await node_local({id: this.state.label});
+            this.setState({ label: node.id });
+        }
+        this.context.inputHandle(this.state.label, innerText)
+    }
+
     render() {
         return (
             <span className="Graphit-Edge" ref={this.myInput}
                 contentEditable suppressContentEditableWarning draggable
-                onInput={evt => this.context.inputHandle(this.state.label, evt.target.innerText)}>
+                onInput={evt => this.inputHandle(this.state.label, evt.target.innerText)}>
                 {this.state.data}
             </span>
         );
@@ -326,7 +330,7 @@ class Node extends React.Component {
                 {indent}
                 <span className="Graphit-EdgeNode"
                     style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
-                    <Edge label={this.props.label} from={this.props.id} />
+                    <Edge label={this.props.label} from={this.props.id} index={this.props.index} />
                     <span className="Graphit-Node" 
                         contentEditable suppressContentEditableWarning draggable
 
