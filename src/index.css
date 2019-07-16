@@ -8,28 +8,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-
-/* Estilo para que linhas vazias tenham mesma altura que linhas preenchidas*/
-/*https://stackoverflow.com/questions/14217902/how-to-set-empty-span-height-equal-to-default-line-height*/
-span:empty::before {
-  content: "\200b";
-}
-
-.Row {
-  /*display: inline-flexbox;*/
-}
-
-
-.Graphit-Node {
+.Graphit-EdgeNode {
   border-style: solid;
   border-width: 1px;
-  display: inline-grid;
+  display: inline-block;
 }
 
 .Indent {
   white-space: pre;
+}
+
+.Graphit-Edge {
+  font-weight: 600;
+}
+
+.Graphit-Edge:empty {
+  padding: 1px
+}
+
+.Graphit-Edge:focus:empty::after {
+  white-space: pre;
+  content: '    ';
+}
+
+.Graphit-Edge:hover:empty::after {
+  white-space: pre;
+  content: '    ';
+}
+
+/*.Graphit-Edge::after {
+  content: ' '
+}*/
+
+/* Estilo para que linhas vazias tenham mesma altura que linhas preenchidas*/
+/*https://stackoverflow.com/questions/14217902/how-to-set-empty-span-height-equal-to-default-line-height*/
+.Graphit-Node:empty::before {
+  content: "\200b";
 }

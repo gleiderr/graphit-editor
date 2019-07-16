@@ -90,17 +90,18 @@ class GraphitApp extends React.Component {
      */
     async insertNode(index, from_id, id = undefined) {
         //Recupera nodo e lista da base de dados
-        let node = await node_local({ id }); 
-        let adj = await adj_local({ from_id });
+        const node = await node_local({ id }); 
+        const adj = await adj_local({ from_id });
+        const edge = { to: node.id };
         
         //Insere elemento na posição index
         if(adj.list === undefined){
-            adj.list = [node.id];
+            adj.list = [edge];
         } else {
-            adj.list.splice(index, 0, node.id);
+            adj.list.splice(index, 0, edge);
         }
 
-        adj = await adj_local(adj) //Atribui lista na base de dados
+        await adj_local(adj) //Atribui lista na base de dados
 
         this.setState({}); //Força atualização dos nodos
     }
@@ -120,6 +121,49 @@ class GraphitApp extends React.Component {
     }
 }
 let dragging_id;
+
+class Edge extends React.Component {
+
+    static contextType = GraphitContext;
+
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+            label: props.label,
+            data: undefined 
+        };
+
+        this.myInput = React.createRef();
+    }
+
+    componentDidUpdate() {
+        // eslint-disable-next-line eqeqeq
+        if (this.myInput.current != document.activeElement) {
+            node_local({id: this.state.label}).then(gnode => {
+                if (gnode.data !== this.state.data || gnode.id !== this.state.label) {
+                    if (this.state.label === undefined) {
+
+                    }
+                    this.setState({
+                        label: gnode.id,
+                        data: gnode.data
+                    });
+                }
+            });
+        }
+    }
+
+    render() {
+        return (
+            <span className="Graphit-Edge" ref={this.myInput}
+                contentEditable suppressContentEditableWarning draggable
+                onInput={evt => this.context.inputHandle(this.state.label, evt.target.innerText)}>
+                {this.state.data}
+            </span>
+        );
+    }
+}
 
 class Node extends React.Component {
     
@@ -255,8 +299,8 @@ class Node extends React.Component {
         if (this.props.deep >= 100) {
             nodes = <div style={style}>...</div>;
         } else if (this.state.opened && this.state.list) {
-            nodes = this.state.list.map((id, i) => {
-                return (<Node key={`${id}(${i})`} id={id} index={i}
+            nodes = this.state.list.map(({label, to}, i) => {
+                return (<Node key={`${to}(${i})`} id={to} index={i} label={label}
                               focusPending={this.state.focusChild === i}
                               resetFocusParent={this.resetFocusChild}
                               deep={this.props.deep + 1}
@@ -264,9 +308,13 @@ class Node extends React.Component {
             });
         }
 
-        let tabs = '\t'.repeat(this.props.deep);
         const tabSize = '2rem';
         const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
+        const indent = (
+            <span className="Indent" style={{tabSize}}>
+                {'\t'.repeat(this.props.deep)}
+            </span>
+        );
 
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         //https://www.w3schools.com/cssref/css3_pr_tab-size.asp
@@ -275,25 +323,29 @@ class Node extends React.Component {
         return (
             <>
             <div className="Row">
-                <span className="Indent"style={{tabSize}}>{tabs}</span>
-                <span className="Graphit-Node" 
-                     contentEditable suppressContentEditableWarning draggable
-                     style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}
-                     onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
-                     onKeyDown={evt => this.keyDownHandle(evt)}
-                     onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
-                     onDragOver={evt => this.dragOverHandle(evt)}
-                     onDragEnter={evt => this.dragEnterHandle(evt)}
-                     onDragLeave={evt => this.dragLeaveHandle(evt)}
-                     onDrop={evt => this.dropHandle(evt)}
-                     onDoubleClick={() => this.setState({opened: this.state.opened === false})}
-                     
-                     //Somente para simular drag-n-drop na base de testes
-                     onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
-                     onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
-                     
-                     ref={this.myInput} >
-                        {this.state.data}
+                {indent}
+                <span className="Graphit-EdgeNode"
+                    style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
+                    <Edge label={this.props.label} from={this.props.id} />
+                    <span className="Graphit-Node" 
+                        contentEditable suppressContentEditableWarning draggable
+
+                        onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
+                        onKeyDown={evt => this.keyDownHandle(evt)}
+                        onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
+                        onDragOver={evt => this.dragOverHandle(evt)}
+                        onDragEnter={evt => this.dragEnterHandle(evt)}
+                        onDragLeave={evt => this.dragLeaveHandle(evt)}
+                        onDrop={evt => this.dropHandle(evt)}
+                        onDoubleClick={() => this.setState({opened: this.state.opened === false})}
+                        
+                        //Somente para simular drag-n-drop na base de testes
+                        onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
+                        onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
+                        
+                        ref={this.myInput} >
+                            {this.state.data}
+                    </span>
                 </span>
             </div>
             {nodes}
