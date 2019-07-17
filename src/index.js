@@ -27,7 +27,7 @@ const db_json = new Graphit_JSON();
 const g_json = new Graphit(db_json);
 
 //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
-const node_local = async ({id, data}) => {
+const node_local = async ({id, data} = {}) => {
     let node;
     if(id === undefined && data === undefined) {//: criação de nodo sem dado
         node = await g_firebase.node({id, data});
@@ -137,23 +137,31 @@ class Edge extends React.Component {
         this.myInput = React.createRef();
     }
 
+    getData() {
+        node_local({id: this.state.label}).then(gnode => {
+            if (gnode.data !== this.state.data) {
+                this.setState({
+                    data: gnode.data
+                });
+            }
+        });
+    }
+
     componentDidUpdate() {
         // eslint-disable-next-line eqeqeq
         if (this.myInput.current != document.activeElement) {
-            node_local({id: this.state.label}).then(gnode => {
-                if (gnode.data !== this.state.data) {
-                    this.setState({
-                        data: gnode.data
-                    });
-                }
-            });
+            this.getData();
         }
+    }
+
+    componentDidMount() {
+        this.getData();
     }
 
     async inputHandle(label, innerText) {
         if (label === undefined) { // Define novo nodo para armazenar conteúdo da aresta
-            const node = await node_local({id: this.state.label});
-            this.setState({ label: node.id });
+            const label = await this.props.handleNewLabel();
+            this.setState({ label });
         }
         this.context.inputHandle(this.state.label, innerText)
     }
@@ -200,6 +208,19 @@ class Node extends React.Component {
     async insertNode(index, id) {
         this.context.insertNode(index, this.props.id, id);
         this.setState({ focusChild: index, opened: true });
+    }
+
+    /** Define o label da aresta que aponta para essa instância do nodo
+     */
+    async setNewLabel(index) {
+        const node = await node_local(); //cria novo nodo que manterá label da aresta
+        const glist = await adj_local({from_id: this.props.id}); //lista que contém a aresta
+        glist.list[index].label = node.id; // atribui novo nodo ao label da aresta
+        await adj_local(glist);// Atribui nova lista à base de dados
+
+        this.setState({ list: glist.list });
+
+        return node.id; //Retorna novo label criado
     }
 
     resetFocusChild() {
@@ -298,13 +319,14 @@ class Node extends React.Component {
             'marginLeft': ((10 * this.props.deep) + 'px'),
         };
 
-
         let nodes;
         if (this.props.deep >= 100) {
             nodes = <div style={style}>...</div>;
         } else if (this.state.opened && this.state.list) {
             nodes = this.state.list.map(({label, to}, i) => {
-                return (<Node key={`${to}(${i})`} id={to} index={i} label={label}
+                const edge = <Edge label={label} handleNewLabel={() => this.setNewLabel(i)} />
+
+                return (<Node key={`${to}(${i})`} id={to} index={i} edge={edge}
                               focusPending={this.state.focusChild === i}
                               resetFocusParent={this.resetFocusChild}
                               deep={this.props.deep + 1}
@@ -319,7 +341,7 @@ class Node extends React.Component {
                 {'\t'.repeat(this.props.deep)}
             </span>
         );
-
+        //console.log({data: this.state.data, edge: this.props.edge});
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         //https://www.w3schools.com/cssref/css3_pr_tab-size.asp
         //https://developer.mozilla.org/en-US/docs/Web/CSS/tab-size
@@ -330,7 +352,7 @@ class Node extends React.Component {
                 {indent}
                 <span className="Graphit-EdgeNode"
                     style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
-                    <Edge label={this.props.label} from={this.props.id} index={this.props.index} />
+                    {this.props.edge}
                     <span className="Graphit-Node" 
                         contentEditable suppressContentEditableWarning draggable
 
