@@ -17,8 +17,12 @@ const config = {
 };
 firebase.initializeApp(config);
 
-const graphit_ref = '__graphit-test__';
-//const graphit_ref = 'graphit';
+const test_ref = '__graphit-test__';
+document.clearTestRef = () => firebase.database().ref(test_ref).remove();
+document.firebase = firebase;
+
+//const graphit_ref = test_ref;
+const graphit_ref = 'graphit';
 
 const db = new Graphit_Firebase(firebase.database(), graphit_ref);
 let g_firebase = new Graphit(db);
@@ -341,6 +345,11 @@ class Node extends React.Component {
                 {'\t'.repeat(this.props.deep)}
             </span>
         );
+
+        const testEvents = graphit_ref !== test_ref ? {} : {
+            onCopy: evt => this.dragStartHandle(evt, this.props.id), //mesmo que onDragStart
+            onPaste: evt => this.dropHandle(evt), //mesmo que onDrop
+        }
         //console.log({data: this.state.data, edge: this.props.edge});
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         //https://www.w3schools.com/cssref/css3_pr_tab-size.asp
@@ -366,8 +375,9 @@ class Node extends React.Component {
                         onDoubleClick={() => this.setState({opened: this.state.opened === false})}
                         
                         //Somente para simular drag-n-drop na base de testes
-                        onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
-                        onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
+                        {...testEvents}
+                        //onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
+                        //onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
                         
                         ref={this.myInput} >
                             {this.state.data}
