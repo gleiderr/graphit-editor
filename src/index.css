@@ -23,25 +23,44 @@ body {
 }
 
 .Graphit-Edge:empty {
-  padding: 1px
+  padding-left: 1em;
 }
 
-.Graphit-Edge:focus:empty::after {
-  white-space: pre;
-  content: '    ';
+.Graphit-Edge:focus:empty {
+  border-style: solid;
+  border-width: 1px;
+  border-color: cadetblue;
+  padding-left: 1em;
 }
 
-.Graphit-Edge:hover:empty::after {
-  white-space: pre;
-  content: '    ';
+.Graphit-Edge:hover:empty {
+  border-style: solid;
+  border-width: 1px;
+  border-color: cadetblue;
+  padding-left: 1em;
 }
-
-/*.Graphit-Edge::after {
-  content: ' '
-}*/
 
 /* Estilo para que linhas vazias tenham mesma altura que linhas preenchidas*/
 /*https://stackoverflow.com/questions/14217902/how-to-set-empty-span-height-equal-to-default-line-height*/
 .Graphit-Node:empty::before {
   content: "\200b";
+}
+.Graphit-Edge:empty::before {
+  content: "\200b";
+}
+
+.Graphit-Node:empty {
+  border-style: solid;
+  border-width: 1px;
+  border-color: cadetblue;
+  padding-right: 1em;
+}
+
+.Graphit-Node:hover {
+  margin-right: 1em;
+}
+
+.Graphit-Node:hover::after {
+  content: '👋';
+  margin-right: -1em;
 }
