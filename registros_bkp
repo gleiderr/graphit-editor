@@ -155,12 +155,16 @@ Graphit
 			Software de altíssima qualidade.
 			Software simples para o usuário e leve para o desenvolvedor tanto quanto possível.
 				Módulos Independentes com conectores (talvez facades) entre eles.
+			Objetivo do software
+				Não é fazer tudo que os outros fazem de maneira melhor
+				É maximizar a quantidade de trabalho feito num dado tempo
+			Somente funcionalidades essenciais
 			Desenvolvimento tão transparente quanto possível.
 				Permite auditoria dos clientes
 				Daily (scrum) com participação dos clientes?
 			Não desenvolver baseado em hipóteses.
 				Portanto, não iniciar desenvolvimento de sistema sem cliente com a necessidade identificada. Sendo que o cliente, nesse caso, pode ser eu mesmo.
-			Não depender de clientes reféns em nosso serviço (pesquisar vendor lock-in no Google).
+			Não depender de clientes reféns em nosso serviço (pesquisar "vendor lock-in" ou "dev lock-in" no Google).
 				Se você é tão bom quanto pensa, não é necessário prender o cliente a você.
 			A coisa mais importante no desenvolvimento de software é a "entrega de software funcionando". A segunda coisa mais importante é a continuidade na "entrega de software funcionando".
 				by Alistar Coburn, 2000.
@@ -170,14 +174,17 @@ Graphit
 				
 			O que o "mercado" geralmente prega sobre open-source é ser ele gratuito ("vantagem"), sem suporte ("desvantagem"), customizável ("vantagem"), dependente de equipe interna para customizar ("desvantagem"), comunidade disponível para tirar dúvidas ("vantagem").
 		Ideias gerais:
-			Sugestão de nome: a palavra "luz" representa os principais valores considerados.
-				Desenvolvimento tão transparente quanto possível.
-					Permite auditoria dos clientes
-					Daily (scrum) com participação dos clientes?
-				Software simples para o usuário e leve para o desenvolvedor tanto quanto possível.
-					Módulos Independentes com conectores (talvez facades) entre eles.
-				Software de altíssima qualidade.
-				Entrega ágil de software.
+			Sugestão de nome: 
+				"Luz"
+					Representa os principais valores considerados.
+						Desenvolvimento tão transparente quanto possível.
+							Permite auditoria dos clientes
+							Daily (scrum) com participação dos clientes?
+						Software simples para o usuário e leve para o desenvolvedor tanto quanto possível.
+							Módulos Independentes com conectores (talvez facades) entre eles.
+						Software de altíssima qualidade.
+						Entrega ágil de software.
+				Essencial
 			Utilizar um ERP open-source como ponto de partida, pois as etapas iniciais de desenvolvimento não agregam valor atrativo ao produto e, portanto, tornaria o retorno do investimento mais demorado.
 			Segue abaixo alguns ERPs open-source: (fonte: https://pluga.co/blog/api/erp-open-source/, https://medium.com/@chavdarov/top-15-free-open-source-erp-solutions-on-sourceforge-in-2017-211376772fde, https://www.findbestopensource.com/tagged/erp)
 				Stoq: desenvolvido em Python utilizando banco de dados Postgresql
