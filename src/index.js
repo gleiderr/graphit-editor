@@ -290,7 +290,7 @@ class GraphitApp extends React.Component {
 
     render() {
         return (
-            <div style={ graphit_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
+            <div style={ this.props.db_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
                 <GraphitContext.Provider value={{
                         inputHandle: this.inputHandle,
                         insertNode: this.insertNode,
