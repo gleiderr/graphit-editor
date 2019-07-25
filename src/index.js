@@ -127,7 +127,7 @@ class Row extends React.Component {
                 const subNodo = (evt.ctrlKey || this.props.idParent === undefined);
                 const index = subNodo ? 0 : this.props.index + 1;
                 const from_id = subNodo ? this.props.id : this.props.idParent;
-                this.context.insertNode(index, from_id);
+                this.context.insertEdge(index, from_id);
                 break;
             default:
         }
@@ -155,7 +155,7 @@ class Row extends React.Component {
         evt.target.style.background = null;
         
         const id = evt.dataTransfer.getData('text/plain');
-        this.insertNode(0, id);
+        this.context.insertEdge(undefined, id);
     }
 
     render() {
@@ -200,7 +200,7 @@ class GraphitApp extends React.Component {
         this.state = {};
 
         this.inputHandle = this.inputHandle.bind(this);
-        this.insertNode = this.insertNode.bind(this);
+        this.insertEdge = this.insertEdge.bind(this);
         this.node_local = this.node_local.bind(this);
         this.adj_local = this.adj_local.bind(this);
         
@@ -254,7 +254,7 @@ class GraphitApp extends React.Component {
         this.setState({}); //Força atualização dos nodos
     }
 
-    async _insertNode(index, from_id, id = undefined) {
+    async _insertEdge(index, from_id, id = undefined) {
         //Recupera nodo, label e lista da base de dados
         const {id: to } = await this.node_local({ id }); 
         const {id: label} = await this.node_local(); //novo label
@@ -279,11 +279,11 @@ class GraphitApp extends React.Component {
      * @param {String} from_id 
      * @param {String} id 
      */
-    async insertNode(index, from_id, id = undefined) {
+    async insertEdge(index, from_id, id = undefined) {
         //Recupera nodo e lista da base de dados
         const node = await this.node_local({ id }); 
-        await this._insertNode(index, from_id, node.id); // Insere aresta direta
-        await this._insertNode(undefined, node.id, from_id);// Insere aresta indireta
+        await this._insertEdge(index, from_id, node.id); // Insere aresta direta
+        await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
 
         this.setState({}); //Força atualização dos nodos
     }
@@ -293,7 +293,7 @@ class GraphitApp extends React.Component {
             <div style={ this.props.db_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
                 <GraphitContext.Provider value={{
                         inputHandle: this.inputHandle,
-                        insertNode: this.insertNode,
+                        insertEdge: this.insertEdge,
                         node_local: this.node_local,
                         adj_local: this.adj_local,
                     }}>
