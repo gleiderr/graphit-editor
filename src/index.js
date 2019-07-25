@@ -128,6 +128,8 @@ class Row extends React.Component {
                 const index = subNodo ? 0 : this.props.index + 1;
                 const from_id = subNodo ? this.props.id : this.props.idParent;
                 this.context.insertEdge(index, from_id);
+
+                this.setState({opened: subNodo && !this.state.opened});
                 break;
             default:
         }
@@ -173,7 +175,7 @@ class Row extends React.Component {
             <>
             <div className="Row" draggable
                 onKeyDown={evt => this.keyDownHandle(evt)}
-                onDoubleClick={() => this.setState({opened: this.state.opened === false})}
+                onDoubleClick={() => this.setState({opened: !this.state.opened})}
                 
                 onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
                 onDragOver={evt => this.dragOverHandle(evt)}
