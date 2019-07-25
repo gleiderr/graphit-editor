@@ -64,43 +64,11 @@ class Editable extends React.Component {
         return (
             <span className={this.props.className}
                 contentEditable suppressContentEditableWarning
-                onInput={evt => this.props.inputHandle(evt.target.innerText)}
+                onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
                 ref={this.myInput} >
                 {this.state.data}
             </span>
         );
-    }
-}
-
-class Node extends React.Component {
-
-    static contextType = GraphitContext;
-
-    render() {
-        return <Editable id={this.props.id} className={'Graphit-Node'}
-                inputHandle={(data) => this.context.inputHandle(this.props.id, data)}/>
-    }
-}
-
-class Edge extends React.Component {
-
-    static contextType = GraphitContext;
-
-    async inputHandle(data) {
-        if (this.state.label === undefined) { // Define novo nodo para armazenar conteúdo da aresta
-            const from_id = this.props.idParent;
-            const label = await this.context.setNewLabel(from_id, this.props.index);
-            this.setState({ label });
-        }
-        this.context.inputHandle(this.state.label, data);
-    }
-
-    render() {
-        if (!this.state || !this.state.label) {
-            return null;
-        } else {
-            return <Editable id={this.state.label} className={'Graphit-Edge'}/>
-        }
     }
 }
 
@@ -193,8 +161,6 @@ class Row extends React.Component {
     render() {
         const tabSize = '2rem';
         const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
-        const edge = this.props.label === undefined ? undefined : 
-            <Edge label={this.props.label} idParent={this.props.idParent} index={this.props.idx}/>;
         const rows = this.state.opened ? <Rows from_id={this.props.id} /> : undefined;
 
         //console.log({data: this.state.data, edge: this.props.edge});
@@ -218,8 +184,8 @@ class Row extends React.Component {
 
                 <Indent n={this.props.deep}/>
                 <span className="Graphit-EdgeNode" style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
-                    {edge}
-                    <Node id={this.props.id}/>
+                    {this.props.label && <Editable className={'Graphit-Edge'} id={this.props.label}/>}
+                    <Editable className={'Graphit-Node'} id={this.props.id}/>
                 </span>
             </div>
             {rows}
@@ -237,7 +203,6 @@ class GraphitApp extends React.Component {
         this.insertNode = this.insertNode.bind(this);
         this.node_local = this.node_local.bind(this);
         this.adj_local = this.adj_local.bind(this);
-        this.setNewLabel = this.setNewLabel.bind(this);
         
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
         this.g_firebase = new Graphit(db);
@@ -284,26 +249,17 @@ class GraphitApp extends React.Component {
         return adj;
     }
 
-    /** Define o label da aresta que aponta para essa instância do nodo
-     */
-    async setNewLabel(from_id, index) {
-        const node = await this.node_local(); //cria novo nodo que manterá label da aresta
-        const glist = await this.adj_local({ from_id }); //lista que contém a aresta
-        glist.list[index].label = node.id; // atribui novo nodo ao label da aresta
-        await this.adj_local(glist);// Atribui nova lista à base de dados
-        return node.id; //Retorna novo label criado
-    }
-
     async inputHandle(id, data) {
         await this.node_local({id, data});
         this.setState({}); //Força atualização dos nodos
     }
 
     async _insertNode(index, from_id, id = undefined) {
-        //Recupera nodo e lista da base de dados
-        const node = await this.node_local({ id }); 
+        //Recupera nodo, label e lista da base de dados
+        const {id: to } = await this.node_local({ id }); 
+        const {id: label} = await this.node_local(); //novo label
         const adj = await this.adj_local({ from_id });
-        const edge = { to: node.id };
+        const edge = { label, to };
         
         //Insere elemento na posição index
         if(adj.list === undefined){
@@ -339,7 +295,6 @@ class GraphitApp extends React.Component {
                         inputHandle: this.inputHandle,
                         insertNode: this.insertNode,
                         node_local: this.node_local,
-                        setNewLabel: this.setNewLabel,
                         adj_local: this.adj_local,
                     }}>
                     <Row id='0' deep={0} />
