@@ -101,7 +101,7 @@ class Rows extends React.Component {
 
         const rows = this.state.list.map(({label, to}, i) =>
             <Row key={`${to}${label}${i}`} id={to} label={label} index={i}
-                 deep={this.props.deep + 1} />
+                 deep={this.props.deep} />
         );
 
         return rows;
@@ -161,7 +161,7 @@ class Row extends React.Component {
     render() {
         const tabSize = '2rem';
         const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
-        const rows = this.state.opened ? <Rows from_id={this.props.id} /> : undefined;
+        const rows = this.state.opened ? <Rows from_id={this.props.id} deep={this.props.deep + 1} /> : undefined;
 
         //console.log({data: this.state.data, edge: this.props.edge});
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
