@@ -100,8 +100,8 @@ class Rows extends React.Component {
         if (!this.state || !this.state.list) return null;
 
         const rows = this.state.list.map(({label, to}, i) =>
-            <Row key={`${to}${label}${i}`} id={to} label={label} index={i}
-                 deep={this.props.deep} />
+            <Row key={`${to}${label}${i}`} id={to} idParent={this.props.from_id} 
+                 label={label} index={i} deep={this.props.deep} />
         );
 
         return rows;
@@ -154,8 +154,8 @@ class Row extends React.Component {
         evt.preventDefault();
         evt.target.style.background = null;
         
-        const id = evt.dataTransfer.getData('text/plain');
-        this.context.insertEdge(undefined, id);
+        const to_id = evt.dataTransfer.getData('text/plain');
+        this.context.insertEdge(undefined, this.props.id, to_id);
     }
 
     render() {
