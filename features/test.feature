@@ -13,6 +13,8 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
             Nodo raíz
         """
 
+    Cenário: Inserção de aresta direta e indireta
+
     #Contexto: Acesso base de teste limpa
     #    Dado acessar página 'localhost:3000'
     #    E aguardar 1 segundo

@@ -299,6 +299,24 @@ class GraphitApp extends React.Component {
         this.setState({}); //Força atualização dos nodos
     }
 
+    async _insertNode(index, from_id, id = undefined) {
+        //Recupera nodo e lista da base de dados
+        const node = await this.node_local({ id }); 
+        const adj = await this.adj_local({ from_id });
+        const edge = { to: node.id };
+        
+        //Insere elemento na posição index
+        if(adj.list === undefined){
+            adj.list = [edge];
+        } else if(index === undefined) {
+            adj.list.push(edge)
+        } else {
+            adj.list.splice(index, 0, edge);
+        }
+
+        await this.adj_local(adj) //Atribui lista na base de dados
+    }
+
     /**
      * Insere referência a nodo [id] a partir do nodo [from_id] na posição [index].
      * @param {Number} index 
@@ -308,17 +326,8 @@ class GraphitApp extends React.Component {
     async insertNode(index, from_id, id = undefined) {
         //Recupera nodo e lista da base de dados
         const node = await this.node_local({ id }); 
-        const adj = await this.adj_local({ from_id });
-        const edge = { to: node.id };
-        
-        //Insere elemento na posição index
-        if(adj.list === undefined){
-            adj.list = [edge];
-        } else {
-            adj.list.splice(index, 0, edge);
-        }
-
-        await this.adj_local(adj) //Atribui lista na base de dados
+        await this._insertNode(index, from_id, node.id); // Insere aresta direta
+        await this._insertNode(undefined, node.id, from_id);// Insere aresta indireta
 
         this.setState({}); //Força atualização dos nodos
     }
