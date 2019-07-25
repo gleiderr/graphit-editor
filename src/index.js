@@ -35,10 +35,12 @@ class Editable extends React.Component {
     constructor(props) {
         super(props);
         this.myInput = React.createRef();
+
+        this.state = {data: undefined};
     }
 
     getData() {
-        this.context.node_local({id: this.state.id}).then(gnode => {
+        this.context.node_local({id: this.props.id}).then(gnode => {
             if (gnode.data !== this.state.data) {
                 this.setState({
                     data: gnode.data
@@ -94,7 +96,11 @@ class Edge extends React.Component {
     }
 
     render() {
-        return <Editable id={this.state.label} className={'Graphit-Edge'}/>
+        if (!this.state || !this.state.label) {
+            return null;
+        } else {
+            return <Editable id={this.state.label} className={'Graphit-Edge'}/>
+        }
     }
 }
 
@@ -102,11 +108,16 @@ class Rows extends React.Component {
 
     static contextType = GraphitContext;
 
+    constructor(props) {
+        super(props);
+        this.state = {list: []};
+    }
+
     async getList() {
         const glist = await this.context.adj_local({from_id: this.props.from_id});
-        this.setState({
-            list: glist.list
-        });
+        if (glist.list != this.state.list) {
+            this.setState({ list: glist.list });
+        }
     }
 
     componentDidMount() {
@@ -118,6 +129,8 @@ class Rows extends React.Component {
     }
 
     render() {
+        if (!this.state || !this.state.list) return null;
+
         const rows = this.state.list.map(({label, to}, i) =>
             <Row key={`${to}${label}${i}`} id={to} label={label} index={i}
                  deep={this.props.deep + 1} />
@@ -180,7 +193,9 @@ class Row extends React.Component {
     render() {
         const tabSize = '2rem';
         const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
-        const rows = this.state.opened ? <Rows /> : undefined;
+        const edge = this.props.label === undefined ? undefined : 
+            <Edge label={this.props.label} idParent={this.props.idParent} index={this.props.idx}/>;
+        const rows = this.state.opened ? <Rows from_id={this.props.id} /> : undefined;
 
         //console.log({data: this.state.data, edge: this.props.edge});
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
@@ -203,7 +218,7 @@ class Row extends React.Component {
 
                 <Indent n={this.props.deep}/>
                 <span className="Graphit-EdgeNode" style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
-                    <Edge label={this.props.label} idParent={this.props.idParent} index={this.props.idx}/>
+                    {edge}
                     <Node id={this.props.id}/>
                 </span>
             </div>
@@ -217,8 +232,12 @@ class GraphitApp extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+
         this.inputHandle = this.inputHandle.bind(this);
         this.insertNode = this.insertNode.bind(this);
+        this.node_local = this.node_local.bind(this);
+        this.adj_local = this.adj_local.bind(this);
+        this.setNewLabel = this.setNewLabel.bind(this);
         
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
         this.g_firebase = new Graphit(db);
@@ -262,7 +281,7 @@ class GraphitApp extends React.Component {
             adj = await this.g_firebase.adj({from_id, list}); //atribuição remota
             await this.g_json.adj(adj); //atribuição local
         }
-        //return adj;
+        return adj;
     }
 
     /** Define o label da aresta que aponta para essa instância do nodo
@@ -312,8 +331,9 @@ class GraphitApp extends React.Component {
                         insertNode: this.insertNode,
                         node_local: this.node_local,
                         setNewLabel: this.setNewLabel,
+                        adj_local: this.adj_local,
                     }}>
-                    <Node id='0' deep={0} />
+                    <Row id='0' deep={0} />
                 </GraphitContext.Provider>
             </div>
         );
