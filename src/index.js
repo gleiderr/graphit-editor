@@ -207,6 +207,7 @@ class GraphitApp extends React.Component {
         this.node_local = this.node_local.bind(this);
         this.adj_local = this.adj_local.bind(this);
         
+        document.db_ref = this.props.db_ref;
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
         this.g_firebase = new Graphit(db);
         
