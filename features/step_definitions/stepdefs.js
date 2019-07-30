@@ -26,6 +26,8 @@ Given('conectado à base de testes', async function () {
 
 Given('base de testes vazia', async function () {
   await page.evaluate(async () => await document.clearTestRef());
+  await page.reload({waitUntil: 'networkidle2'});
+  await page.waitFor(500);
 });
 
 Given('foco no primeiro nodo', async function () {
@@ -42,6 +44,17 @@ When('atualizar página', async function () {
   await page.waitFor(500);
 });
 
+When('teclar {string}', async function(key) {
+  switch (key) {
+    case 'Enter': case 'Tab':
+      await page.keyboard.press(key);
+      await page.waitFor(500);
+      break;
+    default:
+      break;
+  }
+});
+
 Then('conteúdo da página deve ser igual a', async function (docString) {
   const innerText = await page.$eval('#root', el => el.innerText);
   assert.equal(docString, innerText);
@@ -50,10 +63,6 @@ Then('conteúdo da página deve ser igual a', async function (docString) {
 const type = async (string, page) => {
   const focusedField = await page.$(':focus');
   await focusedField.type(string, {delay: 50});
-}
-
-const keypress = async (key, page) => {
-  await page.keyboard.press(key);
 }
 
 const delay = async (s, page) => {
@@ -165,10 +174,6 @@ const assertSome = (innerTexts, test) => {
 Then('deve existir um campo com o texto {string}', async function (string) {
   const innerTexts = await contents(this.page);
   assertSome(innerTexts, string);
-});
-
-When('teclar "Enter"', async function() {
-  await keypress('Enter', this.page);
 });
 
 When('teclar "Ctrl" + "Enter"', async function () {

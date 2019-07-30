@@ -13,6 +13,22 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         Bíblia Sagrada
         """
 
+    Cenário: Criação de novo nodo
+        Dado conectado à base de testes
+        E base de testes vazia
+        E foco no primeiro nodo
+        Quando digitar "Bíblia Sagrada"
+        E teclar "Enter"
+        E teclar "Tab"
+        E digitar "Livro:"
+        E teclar "Tab"
+        E digitar "Gênesis"
+        Então conteúdo da página deve ser igual a
+        """
+        Bíblia Sagrada
+        	Livro:Gênesis
+        """
+
     #Cenário: Edição nodo raíz
     #    Dado o texto "Nodo raíz"
     #    Quando abrir instancia 0 do GraphitApp
