@@ -1,12 +1,51 @@
 const assert = require('assert');
 const { Given, When, Then, BeforeAll, AfterAll } = require('cucumber');
-
 const puppeteer = require('puppeteer');
-const firebase = require('firebase');
 
-let browser;
-const test_ref = '__graphit-test__';
-const node_selector = '.Graphit-Node';
+let page, browser;
+BeforeAll({timeout: 60 * 1000}, async function () {
+  //Acesso à página
+  browser = await puppeteer.launch({
+    headless: false,
+    //slowMo: 25,
+  });
+  [page] = await browser.pages();
+  await page.goto('localhost:3000', {waitUntil: 'networkidle2'});
+})
+
+AfterAll(async function() {
+  await browser.close();
+  console.log('Fim!');
+});
+
+Given('conectado à base de testes', async function () {
+  const test_ref = '__graphit-test__';
+  const db_ref = await page.evaluate(() => document.db_ref);
+  assert.equal(db_ref, test_ref);
+});
+
+Given('base de testes vazia', async function () {
+  await page.evaluate(async () => await document.clearTestRef());
+});
+
+Given('foco no primeiro nodo', async function () {
+  await page.focus('.Graphit-Node');
+});
+
+When('digitar {string}', {timeout: 1000 * 30}, async function (string) {
+  await page.keyboard.type(string);
+  await page.waitFor(500);
+});
+
+When('atualizar página', async function () {
+  await page.reload({waitUntil: 'networkidle2'});
+  await page.waitFor(500);
+});
+
+Then('conteúdo da página deve ser igual a', async function (docString) {
+  const innerText = await page.$eval('#root', el => el.innerText);
+  assert.equal(docString, innerText);
+});
 
 const type = async (string, page) => {
   const focusedField = await page.$(':focus');
@@ -25,42 +64,11 @@ const contents = page => {
   return page.$$eval(node_selector, nodes => nodes.map(n => n.innerText));
 }
 
-BeforeAll({timeout: 60 * 1000}, async function () {
-  //Acesso à página
-  browser = await puppeteer.launch({
-    headless: false,
-    slowMo: 25,
-  });
-  
-  //Acesso ao firebase
-  const config = {
-    apiKey: "AIzaSyDw44kycEYrMUc3RJ_WQ1Oe5ztZqx_S_is",
-    authDomain: "graphit-js.firebaseapp.com",
-    databaseURL: "https://graphit-js.firebaseio.com",
-    projectId: "graphit-js",
-    storageBucket: "graphit-js.appspot.com",
-    messagingSenderId: "694181552879"
-  };
-  firebase.initializeApp(config);
-})
-
-AfterAll(async function() {
-  await browser.close();
-  console.log('Fim!');
-});
-
 Given( 'as instruções', {timeout: 1000 * 30}, async function(dataTable) {
   this.textosComandos = dataTable.hashes();
 })
 
-Given('a base {string} em teste', async function (string) {
-  const innerText = await this.page.$eval('#graphit_ref', el => el.innerText);
-  assert.equal(innerText, string);
-});
 
-Given('que não há informação gravada na base de dados', async function () {
-  await firebase.database().ref(test_ref).remove();
-});
 
 Given('a seguinte lista de livros', async function (dataTable) {
   this.tabelaLivros = dataTable.hashes();
@@ -143,10 +151,6 @@ When('executar as instruções', {timeout: 1000 * 30}, async function () {
         }
     }
   }
-});
-
-When('digitar {string}', {timeout: 1000 * 30}, async function (string) {
-  await type(string, this.page);
 });
 
 When('fechar a página', async function () {
@@ -243,9 +247,4 @@ Then('cada livro deve estar abaixo de seu antecessor', async function () {
 Then('{string} deve estar com {int}px de identação', async function (string, int) {
   const bs = await bounds(this.page, [string]);
   assert(bs[string].x === int, `'${string}.x: ${bs[string].x}, expected: ${int}`);
-});
-
-Then('o conteúdo da página deve ser', async function (string) {
-  const innerText = await this.page.$eval('#root', el => el.innerText);
-  assert.equal(string, innerText);
 });

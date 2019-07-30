@@ -2,18 +2,29 @@
 Funcionalidade: Redação de nodos bíblicos e seus comentários
     Eu como estudante da Bíblia Sagrada desejo escrever textos bíblicos, relacioná-los a seus respectivos versículos, livros e capítulos. Além de escrever comentários reutilizáveis que estejam relacionados à Bíblia, versículos, livros, capítulos ou outros comentários. Isso porque durante a leitura tenho várias revelações e entendimentos que se não forem registrados podem ser esquecidos.
 
-    Cenário: Edição nodo raíz
-        Dado o texto "Nodo raíz"
-        Quando abrir instancia 0 do GraphitApp
-        E digitar texto
-        E abrir instancia 1 do GraphitApp
-        Então não deve existir aresta
-        E conteúdo deve ser igual a
+    Cenário: Registro e recuperação de nodo
+        Dado conectado à base de testes
+        E base de testes vazia
+        E foco no primeiro nodo
+        Quando digitar "Bíblia Sagrada"
+        E atualizar página
+        Então conteúdo da página deve ser igual a
         """
-            Nodo raíz
+        Bíblia Sagrada
         """
 
-    Cenário: Inserção de aresta direta e indireta
+    #Cenário: Edição nodo raíz
+    #    Dado o texto "Nodo raíz"
+    #    Quando abrir instancia 0 do GraphitApp
+    #    E digitar texto
+    #    E abrir instancia 1 do GraphitApp
+    #    Então não deve existir aresta
+    #    E conteúdo deve ser igual a
+    #    """
+    #        Nodo raíz
+    #    """
+
+    #Cenário: Inserção de aresta direta e indireta
 
     #Contexto: Acesso base de teste limpa
     #    Dado acessar página 'localhost:3000'
