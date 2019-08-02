@@ -307,7 +307,7 @@ class GraphitApp extends React.Component {
         //Recupera nodo e lista da base de dados
         const node = await this.node_local({ id }); 
         await this._insertEdge(index, from_id, node.id); // Insere aresta direta
-        await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
+        //await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
 
         this.setState({}); //Força atualização dos nodos
     }
