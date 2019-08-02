@@ -18,7 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "cucumber-js",
+    "test": "cucumber-js --tags \"not @arraste\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

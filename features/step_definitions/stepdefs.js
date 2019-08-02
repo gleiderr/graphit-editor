@@ -55,6 +55,15 @@ When('teclar {string}', async function(key) {
   }
 });
 
+When('arrastar o segundo nodo sobre o primeiro', async function () {
+  const [primeiro, segundo] = await page.$$('.Row');  
+  await segundo.hover();
+  await page.mouse.down();
+  await primeiro.hover();
+  await page.mouse.up();
+  await page.waitFor(2000);
+});
+
 Then('conteúdo da página deve ser igual a', async function (docString) {
   const innerText = await page.$eval('#root', el => el.innerText);
   assert.equal(docString, innerText);

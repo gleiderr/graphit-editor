@@ -13,16 +13,21 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         Bíblia Sagrada
         """
 
-    Cenário: Criação de novo nodo
-        Dado conectado à base de testes
-        E base de testes vazia
-        E foco no primeiro nodo
+    @arraste
+    Cenário: Arraste de nodo
         Quando digitar "Bíblia Sagrada"
         E teclar "Enter"
         E teclar "Tab"
         E digitar "Livro:"
         E teclar "Tab"
         E digitar "Gênesis"
+        E arrastar o segundo nodo sobre o primeiro
+        Então conteúdo da página deve ser igual a
+        """
+        Bíblia Sagrada
+        	Livro: Gênesis
+        	Gênesis
+        """
         Então conteúdo da página deve ser igual a
         """
         Bíblia Sagrada
