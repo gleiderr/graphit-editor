@@ -2,15 +2,52 @@
 Funcionalidade: Redação de nodos bíblicos e seus comentários
     Eu como estudante da Bíblia Sagrada desejo escrever textos bíblicos, relacioná-los a seus respectivos versículos, livros e capítulos. Além de escrever comentários reutilizáveis que estejam relacionados à Bíblia, versículos, livros, capítulos ou outros comentários. Isso porque durante a leitura tenho várias revelações e entendimentos que se não forem registrados podem ser esquecidos.
 
-    Cenário: Registro e recuperação de nodo
+    Contexto:
         Dado conectado à base de testes
         E base de testes vazia
         E foco no primeiro nodo
+
+    Cenário: Registro e recuperação de nodo
         Quando digitar "Bíblia Sagrada"
         E atualizar página
         Então conteúdo da página deve ser igual a
         """
         Bíblia Sagrada
+        """
+
+    Esquema do Cenário: Criação de novo nodo
+        Quando digitar "Bíblia Sagrada"
+        E teclar "<Comando>"
+        E teclar "Tab"
+        E digitar "Livro:"
+        E teclar "Tab"
+        E digitar "Gênesis"
+        Então conteúdo da página deve ser igual a
+        """
+        Bíblia Sagrada
+        	Livro: Gênesis
+        """
+        Exemplos:
+        | Comando      |
+        | Enter        |
+        | Ctrl + Enter |
+
+    Cenário: Criação de sub-nodos
+        Quando digitar "Bíblia Sagrada"
+        E teclar "Enter"
+        E teclar "Tab"
+        E teclar "Tab"
+        E digitar "Gênesis"
+        E teclar "Ctrl + Enter"
+        E teclar "Tab"
+        E digitar "Capítulo: "
+        E teclar "Tab"
+        E digitar "1"
+        Então conteúdo da página deve ser igual a
+        """
+        Bíblia Sagrada
+        	Gênesis
+        		Capítulo: 1
         """
 
     @arraste

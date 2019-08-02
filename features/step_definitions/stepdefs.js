@@ -50,8 +50,14 @@ When('teclar {string}', async function(key) {
       await page.keyboard.press(key);
       await page.waitFor(500);
       break;
-    default:
+    case 'Ctrl + Enter':
+      await page.keyboard.down('Control');
+      await page.keyboard.press('Enter');
+      await page.keyboard.up('Control');
+      await page.waitFor(500);
       break;
+    default:
+      return 'pending';
   }
 });
 
