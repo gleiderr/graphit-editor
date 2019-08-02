@@ -129,7 +129,7 @@ class Row extends React.Component {
                 const from_id = subNodo ? this.props.id : this.props.idParent;
                 this.context.insertEdge(index, from_id);
 
-                this.setState({opened: subNodo});
+                this.setState({opened: this.state.opened || subNodo});
                 break;
             default:
         }
