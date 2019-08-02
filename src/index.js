@@ -131,6 +131,18 @@ class Row extends React.Component {
 
                 this.setState({opened: this.state.opened || subNodo});
                 break;
+            case 'ArrowUp':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.swap(this.props.index - 1, this.props.index, this.props.idParent);
+                }
+                break;
+            case 'ArrowDown':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.swap(this.props.index, this.props.index + 1, this.props.idParent);
+                }
+                break;
             default:
         }
     }
@@ -206,6 +218,7 @@ class GraphitApp extends React.Component {
         this.insertEdge = this.insertEdge.bind(this);
         this.node_local = this.node_local.bind(this);
         this.adj_local = this.adj_local.bind(this);
+        this.swap = this.swap.bind(this);
         
         document.db_ref = this.props.db_ref;
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
@@ -215,7 +228,7 @@ class GraphitApp extends React.Component {
         this.g_json = new Graphit(db_json);
     }
 
-    async node_local ({id, data} = {})  {
+    async node_local({id, data} = {})  {
         //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
         let node;
         if(id === undefined && data === undefined) {//: criação de nodo sem dado
@@ -292,6 +305,16 @@ class GraphitApp extends React.Component {
         this.setState({}); //Força atualização dos nodos
     }
 
+    async swap(i, j, from_id) {
+        if (i < 0 || i >= j) return;
+
+        const { list: a } = await this.adj_local({from_id});
+        if(j < a.length){
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        await this.adj_local({from_id, list: a});
+        this.setState({}); //Força atualização dos nodos
+    }
     render() {
         return (
             <div style={ this.props.db_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
@@ -300,6 +323,7 @@ class GraphitApp extends React.Component {
                         insertEdge: this.insertEdge,
                         node_local: this.node_local,
                         adj_local: this.adj_local,
+                        swap: this.swap,
                     }}>
                     <Row id='0' deep={0} />
                 </GraphitContext.Provider>
