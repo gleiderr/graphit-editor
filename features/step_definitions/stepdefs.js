@@ -41,7 +41,7 @@ When('digitar {string}', {timeout: 1000 * 30}, async function (string) {
 
 When('atualizar página', async function () {
   await page.reload({waitUntil: 'networkidle2'});
-  await page.waitFor(500);
+  await page.waitFor(600);
 });
 
 When('teclar {string}', async function(key) {
