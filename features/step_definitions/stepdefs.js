@@ -65,7 +65,9 @@ When('arrastar o segundo nodo sobre o primeiro', async function () {
 });
 
 Then('conteúdo da página deve ser igual a', async function (docString) {
-  const innerText = await page.$eval('#root', el => el.innerText);
+  const innerText = await page.$eval('#root', 
+    el => el.innerText.replace(/\xa0/g, ' ') //subustituindo &nbsp por espaço em branco (\xa0 === &nbsp;)
+  );
   assert.equal(docString, innerText);
 });
 
