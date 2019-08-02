@@ -8,6 +8,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.Row {
+  padding-top: .5rem;
+}
+
 .Graphit-EdgeNode {
   display: inline-block;
 }
