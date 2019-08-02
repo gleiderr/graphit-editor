@@ -9,8 +9,6 @@ body {
 }
 
 .Graphit-EdgeNode {
-  border-style: solid;
-  border-width: 1px;
   display: inline-block;
 }
 
