@@ -100,7 +100,7 @@ class Rows extends React.Component {
         if (!this.state || !this.state.list) return null;
 
         const rows = this.state.list.map(({label, to}, i) =>
-            <Row key={`${to}${label}${i}`} id={to} idParent={this.props.from_id} 
+            <Row key={`${to}${label}`} id={to} idParent={this.props.from_id} 
                  label={label} index={i} deep={this.props.deep} />
         );
 
@@ -237,7 +237,7 @@ class GraphitApp extends React.Component {
         return node;
     }
 
-    async adj_local ({from_id, list}) {
+    async adj_local({from_id, list}) {
         //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
         let adj;
         if (list === undefined) { //recuperação
