@@ -143,6 +143,12 @@ class Row extends React.Component {
                     this.context.swap(this.props.index, this.props.index + 1, this.props.idParent);
                 }
                 break;
+            case 'Delete':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.delete(this.props.index, this.props.idParent);
+                }
+                break;
             default:
         }
     }
@@ -219,6 +225,7 @@ class GraphitApp extends React.Component {
         this.node_local = this.node_local.bind(this);
         this.adj_local = this.adj_local.bind(this);
         this.swap = this.swap.bind(this);
+        this.delete = this.delete.bind(this);
         
         document.db_ref = this.props.db_ref;
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
@@ -315,6 +322,14 @@ class GraphitApp extends React.Component {
         await this.adj_local({from_id, list: a});
         this.setState({}); //Força atualização dos nodos
     }
+
+    async delete(index, from_id) {
+        const { list } = await this.adj_local({from_id});
+        list.splice(index, 1);
+        await this.adj_local({from_id, list});
+        this.setState({}); //Força atualização dos nodos
+    }
+
     render() {
         return (
             <div style={ this.props.db_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
@@ -324,6 +339,7 @@ class GraphitApp extends React.Component {
                         node_local: this.node_local,
                         adj_local: this.adj_local,
                         swap: this.swap,
+                        delete: this.delete,
                     }}>
                     <Row id='0' deep={0} />
                 </GraphitContext.Provider>
