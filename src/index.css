@@ -20,7 +20,7 @@ body {
   font-weight: 600;
 }
 
-.Graphit-Edge:empty {
+.Graphit-Edge:empty:focus {
   padding-left: 1em;
 }
 
