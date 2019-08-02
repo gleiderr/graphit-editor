@@ -65,10 +65,27 @@ Funcionalidade: Redação de nodos bíblicos e seus comentários
         	Livro: Gênesis
         	Gênesis
         """
+
+    Cenário: Movimentação para cima de arestas de adjacência
+        Quando digitar "Bíblia Sagrada"
+        E teclar "Enter"
+        E teclar "Tab"
+        E teclar "Tab"
+        E digitar "Gênesis"
+        E teclar "Enter"
+        E teclar "Tab"
+        E teclar "Tab"
+        E digitar "Êxodo"
+        E teclar "Enter"
+        E teclar "Tab"
+        E teclar "Tab"
+        E digitar "Levítico"
+        E teclar "Alt" + "ArrowUp"
         Então conteúdo da página deve ser igual a
         """
         Bíblia Sagrada
-        	Livro:Gênesis
+        	Gênesis
+        		Capítulo: 1
         """
 
     #Cenário: Edição nodo raíz
