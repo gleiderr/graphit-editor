@@ -48,17 +48,24 @@ When('teclar {string}', async function(key) {
   switch (key) {
     case 'Enter': case 'Tab':
       await page.keyboard.press(key);
-      await page.waitFor(500);
+      await page.waitFor(600);
       break;
     case 'Ctrl + Enter':
       await page.keyboard.down('Control');
       await page.keyboard.press('Enter');
       await page.keyboard.up('Control');
-      await page.waitFor(500);
+      await page.waitFor(600);
       break;
     default:
       return 'pending';
   }
+});
+
+When('teclar {string} + {string}', async function (mod, key) {
+  await page.keyboard.down(mod);
+  await page.keyboard.press(key);
+  await page.keyboard.up(mod);
+  await page.waitFor(600);
 });
 
 When('arrastar o segundo nodo sobre o primeiro', async function () {
