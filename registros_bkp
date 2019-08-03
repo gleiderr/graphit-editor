@@ -1,153 +1,7 @@
 Graphit
 	Bíblia
 		Gênesis
-			Capítulo 11
-				29 - Mais tarde, tanto Abrão como seu irmão Naor casaram-se. O nome da esposa de Abrão era Sarai, e o nome da esposa de Naor era Milca; esta era filha de Harã, pai de Milca e de Isca.
-					Abrão ou Abraão
-						Casado com:
-							Sarai ou Sara
-								Casada com:
-						Irmão de:
-							Naor
-								Casado com:
-								Irmão de:
-					Naor
-						Casado com:
-							Milca
-								Casada com:
-								Filha de:
-							
-							Milca
-								Casada com:
-								Filha de:
-						Irmão de:
-							Abrão ou Abraão
-								Casado com:
-								Irmão de:
-					Sarai ou Sara
-						Casada com:
-							Abrão ou Abraão
-								Casado com:
-								Irmão de:
-					Milca
-						Casada com:
-							Naor
-								Casado com:
-								Irmão de:
-							
-							Naor
-								Casado com:
-								Irmão de:
-						Filha de:
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-					Harã (pessoa), diferente de Harã (cidade)
-						Harã (Cidade), diferente de Harã (pessoa)
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-							Cidade de:
-								Terra de Canaã
-						Pai de:
-							Ló
-								Filho de:
-							Isca
-								Filha de:
-							Milca
-								Casada com:
-								Filha de:
-					Isca
-						Filha de:
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-				30 - Entretanto, Sarai era estéril, não tinha filhos.
-					Sarai ou Sara
-						Casada com:
-							Abrão ou Abraão
-								Casado com:
-								Irmão de:
-				31 - Terá decidiu sair da cidade de Ur, na Babilônia, e rumar para a terra de Canaã. Tomou seu filho Abrão, seu neto Ló, filho de Harã, e sua nora Sarai, mulher de seu filho Abrão, e todos juntos deixaram Ur dos caldeus, mas, havendo chegado em Harã, ali ficaram morando.
-					Harã (Cidade), diferente de Harã (pessoa)
-						Harã (pessoa), diferente de Harã (cidade)
-							Harã (Cidade), diferente de Harã (pessoa)
-								Harã (pessoa), diferente de Harã (cidade)
-								Cidade de:
-							Pai de:
-								Ló
-								Isca
-								Milca
-						Cidade de:
-							Terra de Canaã
-								Cidades:
-					Sarai ou Sara
-						Casada com:
-							Abrão ou Abraão
-								Casado com:
-								Irmão de:
-					Harã (pessoa), diferente de Harã (cidade)
-						Harã (Cidade), diferente de Harã (pessoa)
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-							Cidade de:
-								Terra de Canaã
-						Pai de:
-							Ló
-								Filho de:
-							Isca
-								Filha de:
-							Milca
-								Casada com:
-								Filha de:
-					Ló
-						Filho de:
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-					Abrão ou Abraão
-						Casado com:
-							Sarai ou Sara
-								Casada com:
-						Irmão de:
-							Naor
-								Casado com:
-								Irmão de:
-					Terá
-						Morreu em:
-							Harã (Cidade), diferente de Harã (pessoa)
-								Harã (pessoa), diferente de Harã (cidade)
-								Cidade de:
-						Morreu com: 205 anos
-						Pai de:
-							Naor
-								Casado com:
-								Irmão de:
-							Abrão ou Abraão
-								Casado com:
-								Irmão de:
-							
-							Harã (pessoa), diferente de Harã (cidade)
-								Harã (Cidade), diferente de Harã (pessoa)
-								Pai de:
-						
-					Ur dos caldeus
-						Cidade de:
-							Babilônia
-								Cidades
-					Babilônia
-						Cidades
-							Ur dos caldeus
-								Cidade de:
-					Terra de Canaã
-						Cidades:
-							Harã (Cidade), diferente de Harã (pessoa)
-								Harã (pessoa), diferente de Harã (cidade)
-								Cidade de:
-			Capítulo 12
-				
-		Êxodo
+		Estudos pessoais
 	Ideias de Negócio
 		Todas são dependentes do aval do Senhor!!!
 		Propostas de Valor
@@ -155,45 +9,23 @@ Graphit
 			Software de altíssima qualidade.
 			Software simples para o usuário e leve para o desenvolvedor tanto quanto possível.
 				Módulos Independentes com conectores (talvez facades) entre eles.
-			Objetivo do software
-				Não é fazer tudo que os outros fazem de maneira melhor
-				É maximizar a quantidade de trabalho feito num dado tempo
-			Somente funcionalidades essenciais
-			Desenvolvimento tão transparente quanto possível.
-				Permite auditoria dos clientes
+			O objetivo do software não é fazer tudo que os outros fazem de maneira melhor, mas sim maximizar a quantidade de trabalho feito num dado tempo.
+			Somente desenvolvemos funcionalidades essenciais
+			Desenvolvimento tão transparente quanto possível
+				
+				Permitindo auditoria dos clientes
 				Daily (scrum) com participação dos clientes?
-			Não desenvolver baseado em hipóteses.
+			Não desenvolver baseado em hipóteses, mas somente baseado em fatos
 				Portanto, não iniciar desenvolvimento de sistema sem cliente com a necessidade identificada. Sendo que o cliente, nesse caso, pode ser eu mesmo.
 			Não depender de clientes reféns em nosso serviço (pesquisar "vendor lock-in" ou "dev lock-in" no Google).
 				Se você é tão bom quanto pensa, não é necessário prender o cliente a você.
 			A coisa mais importante no desenvolvimento de software é a "entrega de software funcionando". A segunda coisa mais importante é a continuidade na "entrega de software funcionando".
 				by Alistar Coburn, 2000.
-			Uma das grandes vantagens do desenvolvimento open-source é a relativa independência do patrocinador, pois o desenvolvimento pode prosseguir independente do aval deste. Isso permite que melhorias sejam desenvolvidas de forma ágil.
+			Uma das grandes vantagens do desenvolvimento open-source é a relativa independência do patrocinador, pois o desenvolvimento pode prosseguir independente do aval deste. Isso permite que melhorias sejam desenvolvidas de forma ágil.
 				Podem ser modelados contratos cujas mudanças que invalidem cenários contratados sejam dependentes de aprovação e negociação com o cliente que o contratou. Essa dependência deve ter prazo de validade, podendo ser prorrogado por recontratação.
 					Uma melhor alternativa a essa opção é a criação de forks para cada cliente para acomodar suas necessidades específicas
-				
 			O que o "mercado" geralmente prega sobre open-source é ser ele gratuito ("vantagem"), sem suporte ("desvantagem"), customizável ("vantagem"), dependente de equipe interna para customizar ("desvantagem"), comunidade disponível para tirar dúvidas ("vantagem").
-		Ideias gerais:
-			Sugestão de nome: 
-				"Luz"
-					Representa os principais valores considerados.
-						Desenvolvimento tão transparente quanto possível.
-							Permite auditoria dos clientes
-							Daily (scrum) com participação dos clientes?
-						Software simples para o usuário e leve para o desenvolvedor tanto quanto possível.
-							Módulos Independentes com conectores (talvez facades) entre eles.
-						Software de altíssima qualidade.
-						Entrega ágil de software.
-				Essencial
-			Utilizar um ERP open-source como ponto de partida, pois as etapas iniciais de desenvolvimento não agregam valor atrativo ao produto e, portanto, tornaria o retorno do investimento mais demorado.
-			Segue abaixo alguns ERPs open-source: (fonte: https://pluga.co/blog/api/erp-open-source/, https://medium.com/@chavdarov/top-15-free-open-source-erp-solutions-on-sourceforge-in-2017-211376772fde, https://www.findbestopensource.com/tagged/erp)
-				Stoq: desenvolvido em Python utilizando banco de dados Postgresql
-					https://github.com/stoq
-				Openbravo:
-					https://github.com/bippo/openbravo
-				https://github.com/xtuple
-				https://github.com/EasyERP
-					Desenvolvido em JavaScript (Node)
-				https://github.com/ToManage/TM-CRM_ERP
-				https://github.com/frappe/erpnext
-					Desenvolvido em python
+		Ideias de contrato:
+			Podem ser modelados contratos cujas mudanças que invalidem cenários contratados sejam dependentes de aprovação e negociação com o cliente que o contratou. Essa dependência deve ter prazo de validade, podendo ser prorrogado por recontratação.
+				Uma melhor alternativa a essa opção é a criação de forks para cada cliente para acomodar suas necessidades específicas
+			

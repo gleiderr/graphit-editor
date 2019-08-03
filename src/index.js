@@ -17,132 +17,30 @@ const config = {
 };
 firebase.initializeApp(config);
 
-const test_ref = '__graphit-test__';
-document.clearTestRef = () => firebase.database().ref(test_ref).remove();
-document.firebase = firebase;
+const GraphitContext = React.createContext({});
 
-//const graphit_ref = test_ref;
-const graphit_ref = 'graphit';
-
-const db = new Graphit_Firebase(firebase.database(), graphit_ref);
-let g_firebase = new Graphit(db);
-
-const db_json = new Graphit_JSON();
-const g_json = new Graphit(db_json);
-
-//Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
-const node_local = async ({id, data} = {}) => {
-    let node;
-    if(id === undefined && data === undefined) {//: criação de nodo sem dado
-        node = await g_firebase.node({id, data});
-        await g_json.node({id: node.id, data: null});//salva dado localmente
-    } else if(id === undefined && data !== undefined) {//: criação de nodo com dado
-        node = await g_firebase.node({id, data});
-        await g_json.node({id: node.id, data});//salva dado localmente
-    } else if(id !== undefined && data === undefined) {//: recuperação de nodo e seu dado
-        node = await g_json.node({id, data}); //tentativa de recuperação local
-        if(node.data === undefined) { //se não recuperar, busca na base de dados
-            node = await g_firebase.node({id, data});
-            await g_json.node({id: node.id, data});//salva dado localmente
-        }
-    } else if(id !== undefined && data !== undefined) {//: atribuição de dado do nodo
-        node = await g_firebase.node({id, data});
-        await g_json.node({id, data});
-    }
-    return node;
-}
-
-const adj_local = async ({from_id, list}) => {
-    let adj;
-    
-    if (list === undefined) { //recuperação
-        
-        adj = await g_json.adj({from_id, list}); //tentativa de recuperação local
-        if (adj.list === undefined) {
-            adj = await g_firebase.adj({from_id, list}); //recuperação remota
-            await g_json.adj(adj); //atribuição local
-        }
-    } else { //atribuição
-        adj = await g_firebase.adj({from_id, list}); //atribuição remota
-        await g_json.adj(adj); //atribuição local
-    }
-    return adj;
-}
-
-const GraphitContext = React.createContext({
-    adj_local
-});
-
-class GraphitApp extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {teste: 'teste'};
-        this.inputHandle = this.inputHandle.bind(this);
-        this.insertNode = this.insertNode.bind(this);
-    }
-
-    async inputHandle(id, data) {
-        await node_local({id, data});
-        this.setState({}); //Força atualização dos nodos
-    }
-
-    /**
-     * Insere referência a nodo [id] a partir do nodo [from_id] na posição [index].
-     * @param {Number} index 
-     * @param {String} from_id 
-     * @param {String} id 
-     */
-    async insertNode(index, from_id, id = undefined) {
-        //Recupera nodo e lista da base de dados
-        const node = await node_local({ id }); 
-        const adj = await adj_local({ from_id });
-        const edge = { to: node.id };
-        
-        //Insere elemento na posição index
-        if(adj.list === undefined){
-            adj.list = [edge];
-        } else {
-            adj.list.splice(index, 0, edge);
-        }
-
-        await adj_local(adj) //Atribui lista na base de dados
-
-        this.setState({}); //Força atualização dos nodos
-    }
-
+class Indent extends React.Component {
     render() {
-        return (
-            <div style={ graphit_ref !== '__graphit-test__' ? {background: 'black', color: 'lightsteelblue'} : {}}>
-                <div id='graphit_ref' style={{display: 'none'}}>{graphit_ref}</div>
-                <GraphitContext.Provider value={{
-                    inputHandle: this.inputHandle,
-                    insertNode: this.insertNode
-                }}>
-                    <Node id='0' deep={0} />
-                </GraphitContext.Provider>
-            </div>
-        );
+        const tabSize = '2rem';
+        return <span className="Indent" style={{tabSize}}>
+                {'\t'.repeat(this.props.n)}
+            </span>
     }
 }
-let dragging_id;
 
-class Edge extends React.Component {
-
+class Editable extends React.Component {
+    
     static contextType = GraphitContext;
 
     constructor(props) {
         super(props);
-        
-        this.state = {
-            label: props.label,
-            data: undefined 
-        };
-
         this.myInput = React.createRef();
+
+        this.state = {data: undefined};
     }
 
     getData() {
-        node_local({id: this.state.label}).then(gnode => {
+        this.context.node_local({id: this.props.id}).then(gnode => {
             if (gnode.data !== this.state.data) {
                 this.setState({
                     data: gnode.data
@@ -162,84 +60,93 @@ class Edge extends React.Component {
         this.getData();
     }
 
-    async inputHandle(label, innerText) {
-        if (label === undefined) { // Define novo nodo para armazenar conteúdo da aresta
-            const label = await this.props.handleNewLabel();
-            this.setState({ label });
-        }
-        this.context.inputHandle(this.state.label, innerText)
-    }
-
     render() {
         return (
-            <span className="Graphit-Edge" ref={this.myInput}
-                contentEditable suppressContentEditableWarning draggable
-                onInput={evt => this.inputHandle(this.state.label, evt.target.innerText)}>
+            <span className={this.props.className}
+                contentEditable suppressContentEditableWarning
+                onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
+                ref={this.myInput} >
                 {this.state.data}
             </span>
         );
     }
 }
 
-class Node extends React.Component {
-    
+class Rows extends React.Component {
+
+    static contextType = GraphitContext;
+
+    constructor(props) {
+        super(props);
+        this.state = {list: []};
+    }
+
+    async getList() {
+        const glist = await this.context.adj_local({from_id: this.props.from_id});
+        if (glist.list != this.state.list) {
+            this.setState({ list: glist.list });
+        }
+    }
+
+    componentDidMount() {
+        this.getList();
+    }
+
+    componentDidUpdate() {
+        this.getList();
+    }
+
+    render() {
+        if (!this.state || !this.state.list) return null;
+
+        const rows = this.state.list.map(({label, to}, i) =>
+            <Row key={`${to}${label}`} id={to} idParent={this.props.from_id} 
+                 label={label} index={i} deep={this.props.deep} />
+        );
+
+        return rows;
+    }
+}
+
+class Row extends React.Component {
+
     static contextType = GraphitContext;
 
     constructor(props) {
         super(props);
 
-        this.resetFocusChild = this.resetFocusChild.bind(this);
-        
         this.state = {
-            data: undefined,
-            list: [],
-            focusPending: props.focusPending,
-            opened: false || graphit_ref === '__graphit-test__'
+            opened: false
         };
-
-        this.myInput = React.createRef();
-
-        node_local({id: props.id}).then(gnode => {
-            adj_local({from_id: props.id}).then(glist => {
-                this.setState({ 
-                    data: gnode.data,
-                    list: glist.list
-                });
-            })
-        });
-    }
-
-    async insertNode(index, id) {
-        this.context.insertNode(index, this.props.id, id);
-        this.setState({ focusChild: index, opened: true });
-    }
-
-    /** Define o label da aresta que aponta para essa instância do nodo
-     */
-    async setNewLabel(index) {
-        const node = await node_local(); //cria novo nodo que manterá label da aresta
-        const glist = await adj_local({from_id: this.props.id}); //lista que contém a aresta
-        glist.list[index].label = node.id; // atribui novo nodo ao label da aresta
-        await adj_local(glist);// Atribui nova lista à base de dados
-
-        this.setState({ list: glist.list });
-
-        return node.id; //Retorna novo label criado
-    }
-
-    resetFocusChild() {
-        this.setState({ focusChild: undefined });
     }
 
     async keyDownHandle(evt) {
         switch(evt.key) {
             case 'Enter':
                 evt.preventDefault();
-                
-                if (evt.ctrlKey || !this.props.insertNodeParent) {
-                    this.insertNode(0);
-                } else {
-                    this.props.insertNodeParent(this.props.index + 1);
+                const subNodo = (evt.ctrlKey || this.props.idParent === undefined);
+                const index = subNodo ? 0 : this.props.index + 1;
+                const from_id = subNodo ? this.props.id : this.props.idParent;
+                this.context.insertEdge(index, from_id);
+
+                this.setState({opened: this.state.opened || subNodo});
+                break;
+            case 'ArrowUp':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.swap(this.props.index - 1, this.props.index, this.props.idParent);
+                }
+                break;
+            case 'ArrowDown':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.swap(this.props.index, this.props.index + 1, this.props.idParent);
+                }
+                break;
+            case 'Delete':
+                if (this.props.idParent !== undefined && evt.altKey) {
+                    evt.preventDefault();
+                    this.context.delete(this.props.index, this.props.idParent);
                 }
                 break;
             default:
@@ -247,10 +154,6 @@ class Node extends React.Component {
     }
 
     dragStartHandle(evt, id) {
-        if (graphit_ref === '__graphit-test__') {
-            dragging_id = id;
-            return;
-        }
         evt.dataTransfer.setData('text/plain', id);
     }
 
@@ -269,127 +172,188 @@ class Node extends React.Component {
 
     dropHandle(evt) {
         evt.preventDefault();
-        if (graphit_ref === '__graphit-test__') {
-            this.insertNode(0, dragging_id);
-            return;
-        }        
         evt.target.style.background = null;
         
-        const id = evt.dataTransfer.getData('text/plain');
-        this.insertNode(0, id);
+        const to_id = evt.dataTransfer.getData('text/plain');
+        this.context.insertEdge(undefined, this.props.id, to_id);
+        this.setState({opened: true});
     }
-
-    componentDidUpdate() {
-        // eslint-disable-next-line eqeqeq
-        if (this.myInput.current != document.activeElement) {
-            node_local({id: this.props.id}).then(gnode => {
-                if (gnode.data !== this.state.data) {
-                    this.setState({ 
-                        data: gnode.data
-                    });
-                }
-            });
-        }
-
-        adj_local({from_id: this.props.id}).then(glist => {
-            if (glist.list !== this.state.list) {
-                this.setState({
-                    list: glist.list
-                });
-            }
-        })
-    }
-
-    componentDidMount() {
-        if (this.state.focusPending) {
-            this.myInput.current.focus();
-            this.props.resetFocusParent();
-            this.setState({focusPending: false});
-        }
-    }
-
-    /*shouldComponentUpdate(nextProps, nextState) {
-        //https://github.com/facebook/react/issues/2047
-        let shouldUpdate = nextState.data !== this.myInput.current.innerText;
-        for (const key in nextState) {
-            if(shouldUpdate) return shouldUpdate;
-            if(key !== 'data') shouldUpdate = shouldUpdate || (this.state[key] !== nextState[key]);
-        }
-        return shouldUpdate;
-    }*/
 
     render() {
-        const style = {
-            'marginLeft': ((10 * this.props.deep) + 'px'),
-        };
-
-        let nodes;
-        if (this.props.deep >= 100) {
-            nodes = <div style={style}>...</div>;
-        } else if (this.state.opened && this.state.list) {
-            nodes = this.state.list.map(({label, to}, i) => {
-                const edge = <Edge label={label} handleNewLabel={() => this.setNewLabel(i)} />
-
-                return (<Node key={`${to}(${i})`} id={to} index={i} edge={edge}
-                              focusPending={this.state.focusChild === i}
-                              resetFocusParent={this.resetFocusChild}
-                              deep={this.props.deep + 1}
-                              insertNodeParent={index => this.insertNode(index)} />);
-            });
-        }
-
         const tabSize = '2rem';
         const widthExpression = `calc(${tabSize} * ${this.props.deep})`;
-        const indent = (
-            <span className="Indent" style={{tabSize}}>
-                {'\t'.repeat(this.props.deep)}
-            </span>
-        );
+        const rows = this.state.opened ? <Rows from_id={this.props.id} deep={this.props.deep + 1} /> : undefined;
 
-        const testEvents = graphit_ref !== test_ref ? {} : {
-            onCopy: evt => this.dragStartHandle(evt, this.props.id), //mesmo que onDragStart
-            onPaste: evt => this.dropHandle(evt), //mesmo que onDrop
-        }
         //console.log({data: this.state.data, edge: this.props.edge});
         //https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
         //https://www.w3schools.com/cssref/css3_pr_tab-size.asp
         //https://developer.mozilla.org/en-US/docs/Web/CSS/tab-size
         //https://developer.mozilla.org/en-US/docs/Web/CSS/calc
+
         return (
             <>
-            <div className="Row">
-                {indent}
-                <span className="Graphit-EdgeNode"
-                    style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
-                    {this.props.edge}
-                    <span className="Graphit-Node" 
-                        contentEditable suppressContentEditableWarning draggable
+            <div className="Row" draggable
+                onKeyDown={evt => this.keyDownHandle(evt)}
+                onDoubleClick={() => this.setState({opened: !this.state.opened})}
+                
+                onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
+                onDragOver={evt => this.dragOverHandle(evt)}
+                onDragEnter={evt => this.dragEnterHandle(evt)}
+                onDragLeave={evt => this.dragLeaveHandle(evt)}
+                onDrop={evt => this.dropHandle(evt)}
+                >
 
-                        onInput={evt => this.context.inputHandle(this.props.id, evt.target.innerText)}
-                        onKeyDown={evt => this.keyDownHandle(evt)}
-                        onDragStart={evt => this.dragStartHandle(evt, this.props.id)}
-                        onDragOver={evt => this.dragOverHandle(evt)}
-                        onDragEnter={evt => this.dragEnterHandle(evt)}
-                        onDragLeave={evt => this.dragLeaveHandle(evt)}
-                        onDrop={evt => this.dropHandle(evt)}
-                        onDoubleClick={() => this.setState({opened: this.state.opened === false})}
-                        
-                        //Somente para simular drag-n-drop na base de testes
-                        {...testEvents}
-                        //onCopy={evt => this.dragStartHandle(evt, this.props.id)} //mesmo que onDragStart
-                        //onPaste={evt => this.dropHandle(evt)} //mesmo que onDrop
-                        
-                        ref={this.myInput} >
-                            {this.state.data}
-                    </span>
+                <Indent n={this.props.deep}/>
+                <span className="Graphit-EdgeNode" style={{width: `calc(calc(100% - 2px) - ${widthExpression})`}}>
+                    {this.props.label && <Editable className={'Graphit-Edge'} id={this.props.label}/>}
+                    <Editable className={'Graphit-Node'} id={this.props.id}/>
                 </span>
             </div>
-            {nodes}
-            </>);
+            {rows}
+            </>
+        );
     }
 }
 
-ReactDOM.render(<GraphitApp />, document.getElementById('root'));
+class GraphitApp extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+
+        this.inputHandle = this.inputHandle.bind(this);
+        this.insertEdge = this.insertEdge.bind(this);
+        this.node_local = this.node_local.bind(this);
+        this.adj_local = this.adj_local.bind(this);
+        this.swap = this.swap.bind(this);
+        this.delete = this.delete.bind(this);
+        
+        document.db_ref = this.props.db_ref;
+        const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
+        this.g_firebase = new Graphit(db);
+        
+        const db_json = new Graphit_JSON();
+        this.g_json = new Graphit(db_json);
+    }
+
+    async node_local({id, data} = {})  {
+        //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
+        let node;
+        if(id === undefined && data === undefined) {//: criação de nodo sem dado
+            node = await this.g_firebase.node({id, data});
+            await this.g_json.node({id: node.id, data: null});//salva dado localmente
+        } else if(id === undefined && data !== undefined) {//: criação de nodo com dado
+            node = await this.g_firebase.node({id, data});
+            await this.g_json.node({id: node.id, data});//salva dado localmente
+        } else if(id !== undefined && data === undefined) {//: recuperação de nodo e seu dado
+            node = await this.g_json.node({id, data}); //tentativa de recuperação local
+            if(node.data === undefined) { //se não recuperar, busca na base de dados
+                node = await this.g_firebase.node({id, data});
+                await this.g_json.node({id: node.id, data});//salva dado localmente
+            }
+        } else if(id !== undefined && data !== undefined) {//: atribuição de dado do nodo
+            node = await this.g_firebase.node({id, data});
+            await this.g_json.node({id, data});
+        }
+        return node;
+    }
+
+    async adj_local({from_id, list}) {
+        //Recuperação offline sempre que possível para reduzir trafego de rede e aumentar eficiência
+        let adj;
+        if (list === undefined) { //recuperação
+            adj = await this.g_json.adj({from_id, list}); //tentativa de recuperação local
+            if (adj.list === undefined) {
+                adj = await this.g_firebase.adj({from_id, list}); //recuperação remota
+                await this.g_json.adj(adj); //atribuição local
+            }
+        } else { //atribuição
+            adj = await this.g_firebase.adj({from_id, list}); //atribuição remota
+            await this.g_json.adj(adj); //atribuição local
+        }
+        return adj;
+    }
+
+    async inputHandle(id, data) {
+        await this.node_local({id, data});
+        this.setState({}); //Força atualização dos nodos
+    }
+
+    async _insertEdge(index, from_id, id = undefined) {
+        //Recupera nodo, label e lista da base de dados
+        const {id: to } = await this.node_local({ id }); 
+        const {id: label} = await this.node_local(); //novo label
+        const adj = await this.adj_local({ from_id });
+        const edge = { label, to };
+        
+        //Insere elemento na posição index
+        if(adj.list === undefined){
+            adj.list = [edge];
+        } else if(index === undefined) {
+            adj.list.push(edge)
+        } else {
+            adj.list.splice(index, 0, edge);
+        }
+
+        await this.adj_local(adj) //Atribui lista na base de dados
+    }
+
+    /**
+     * Insere referência a nodo [id] a partir do nodo [from_id] na posição [index].
+     * @param {Number} index 
+     * @param {String} from_id 
+     * @param {String} id 
+     */
+    async insertEdge(index, from_id, id = undefined) {
+        //Recupera nodo e lista da base de dados
+        const node = await this.node_local({ id }); 
+        await this._insertEdge(index, from_id, node.id); // Insere aresta direta
+        //await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
+
+        this.setState({}); //Força atualização dos nodos
+    }
+
+    async swap(i, j, from_id) {
+        if (i < 0 || i >= j) return;
+
+        const { list: a } = await this.adj_local({from_id});
+        if(j < a.length){
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        await this.adj_local({from_id, list: a});
+        this.setState({}); //Força atualização dos nodos
+    }
+
+    async delete(index, from_id) {
+        const { list } = await this.adj_local({from_id});
+        list.splice(index, 1);
+        await this.adj_local({from_id, list});
+        this.setState({}); //Força atualização dos nodos
+    }
+
+    render() {
+        return (
+            <div style={ this.props.db_ref !== '__graphit-test__' ? {background: '#1e1e1e', color: '#d4d4d4'} : {}}>
+                <GraphitContext.Provider value={{
+                        inputHandle: this.inputHandle,
+                        insertEdge: this.insertEdge,
+                        node_local: this.node_local,
+                        adj_local: this.adj_local,
+                        swap: this.swap,
+                        delete: this.delete,
+                    }}>
+                    <Row id='0' deep={0} />
+                </GraphitContext.Provider>
+            </div>
+        );
+    }
+}
+
+const test_ref = '__graphit-test__';
+document.clearTestRef = () => firebase.database().ref(test_ref).remove();
+
+const graphit_ref = 'graphit';
+
+ReactDOM.render(<GraphitApp db_ref={test_ref} />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
