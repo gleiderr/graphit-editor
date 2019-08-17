@@ -255,6 +255,11 @@ class GraphitApp extends React.Component {
         this.delete = this.delete.bind(this);
         
         document.db_ref = this.props.db_ref;
+        if(this.props.db_ref !== '__graphit-test__') {
+            document.body.style.background = '#1e1e1e';
+            document.body.style.color = '#d4d4d4';
+        }
+
         const db = new Graphit_Firebase(firebase.database(), this.props.db_ref);
         this.g_firebase = new Graphit(db);
         
@@ -361,7 +366,7 @@ class GraphitApp extends React.Component {
 
     render() {
         return (
-            <div style={ this.props.db_ref !== '__graphit-test__' ? {background: '#1e1e1e', color: '#d4d4d4'} : {}}>
+            <div>
                 <GraphitContext.Provider value={{
                         inputHandle: this.inputHandle,
                         insertEdge: this.insertEdge,
@@ -383,7 +388,7 @@ document.clearTestRef = () => firebase.database().ref(test_ref).remove();
 
 const graphit_ref = 'graphit';
 
-ReactDOM.render(<GraphitApp db_ref={test_ref} />, document.getElementById('root'));
+ReactDOM.render(<GraphitApp db_ref={graphit_ref} />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
