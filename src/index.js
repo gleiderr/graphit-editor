@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
@@ -215,10 +215,37 @@ class Row extends React.Component {
     }
 }
 
+function MoveMode(props) {
+    const [mode, setMode] = useState(0);
+
+    const modes = ['aresta-simples', 'aresta-dupla'];
+    const handleClick = () => {
+        const newMode = (mode + 1) % 2; 
+        setMode(newMode);
+        props.changeMoveMode(modes[newMode]);
+    }
+
+    const símbolo = mode => {
+        switch(modes[mode]) {
+            case 'aresta-simples': return '->';
+            case 'aresta-dupla': return '<->';
+            default: throw new Error('Estado não previsto!');
+        }
+    }
+
+    return (
+        <div onClick={handleClick} style={{position: "fixed", right: 0, borderWidth: 'thin', bordeStyle: 'dotted'}}>
+            {símbolo(mode)}
+        </div>
+    );
+}
+
 class GraphitApp extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            moveMode: 'aresta-simples',
+        };
 
         this.inputHandle = this.inputHandle.bind(this);
         this.insertEdge = this.insertEdge.bind(this);
@@ -307,7 +334,9 @@ class GraphitApp extends React.Component {
         //Recupera nodo e lista da base de dados
         const node = await this.node_local({ id }); 
         await this._insertEdge(index, from_id, node.id); // Insere aresta direta
-        //await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
+        if(this.state.moveMode === 'aresta-dupla') {
+            await this._insertEdge(undefined, node.id, from_id);// Insere aresta indireta
+        }
 
         this.setState({}); //Força atualização dos nodos
     }
@@ -341,6 +370,7 @@ class GraphitApp extends React.Component {
                         swap: this.swap,
                         delete: this.delete,
                     }}>
+                    <MoveMode changeMoveMode={moveMode => this.setState({moveMode})}/>
                     <Row id='0' deep={0} />
                 </GraphitContext.Provider>
             </div>
